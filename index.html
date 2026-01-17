@@ -724,11 +724,12 @@
     }
 
     // =========================
-    // CHECKOUT -> WHATSAPP
+    // CHECKOUT -> WHATSAPP + SALVA NO PAINEL (FORMATO COMPATIVEL)
     // =========================
     const checkoutForm = document.getElementById('checkout-form');
     if (checkoutForm) {
-      checkoutForm.addEventListener('submit', function(e) {
+      checkoutForm.addEventListener('submit', function(e)
+       {
         e.preventDefault();
 
         const name = document.getElementById('customer-name').value.trim();
@@ -758,12 +759,36 @@
         });
 
         message += `💰 *TOTAL: R$ ${totalPrice.toFixed(2)}*\\n\\n`;
-        message += `⏱️ Tempo estimado: 30-45 minutos`;
+        message += `⏱️ Tempo estimado: 45min a 1:20' minutos`;
 
         const sdkNumber = window.elementSdk?.config?.whatsapp_number;
         const whatsappNumber = (sdkNumber || defaultConfig.whatsapp_number || '').replace(/\D/g, '');
-
         const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+
+        // ✅ salva no formato que o admin.html consegue ler
+        const LS_ORDERS = "menu_orders_v1";
+
+        const order = {
+          id: "o_" + Date.now().toString(16) + "_" + Math.random().toString(16).slice(2),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          status: "new",
+          customer: {
+            name,
+            phone,
+            addressLine: `${address} — ${neighborhood}, ${city} • CEP ${cep}${complement ? " • " + complement : ""}`
+          },
+          items: cart.map(item => ({
+            name: item.name,
+            qty: item.quantity,
+            price: item.price
+          })),
+          total: totalPrice
+        };
+
+        const orders = JSON.parse(localStorage.getItem(LS_ORDERS) || "[]");
+        orders.push(order);
+        localStorage.setItem(LS_ORDERS, JSON.stringify(orders));
 
         closeCheckout();
         document.getElementById('success-modal').classList.add('active');
@@ -815,8 +840,6 @@
     }
 
     // =========================
-    // SDK (Canva element_sdk)
-    // =========================
     function lightenColor(color, percent) {
       const num = parseInt(String(color).replace('#',''), 16);
       const amt = Math.round(2.55 * percent);
@@ -851,7 +874,6 @@
         wrapper.style.background = `linear-gradient(135deg, ${bgColor} 0%, ${lightenColor(bgColor, 18)} 100%)`;
       }
 
-      // recolor accents (safe: only inline colors that match your original)
       const accentColor = config.accent_color || defaultConfig.accent_color;
       const textColor = config.text_color || defaultConfig.text_color;
 
@@ -899,5 +921,103 @@
     // init UI
     updateCartUI();
   </script>
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  // ✅ COLE AQUI O MESMO firebaseConfig do admin
+  const firebaseConfig = {
+    apiKey: "SUA_API_KEY",
+    authDomain: "SEU_AUTH_DOMAIN",
+    projectId: "SEU_PROJECT_ID",
+    storageBucket: "SEU_STORAGE_BUCKET",
+    messagingSenderId: "SEU_SENDER_ID",
+    appId: "SEU_APP_ID"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // ⚠️ IMPORTANTE:
+  // Esse script assume que no seu código já existem:
+  // - let cart = []
+  // - defaultConfig
+  // - funções closeCheckout(), updateCartUI(), etc.
+
+  const checkoutForm = document.getElementById('checkout-form');
+
+  if (checkoutForm) {
+    checkoutForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const name = document.getElementById('customer-name').value.trim();
+      const phone = document.getElementById('customer-phone').value.trim();
+      const cep = document.getElementById('customer-cep').value.trim();
+      const address = document.getElementById('customer-address').value.trim();
+      const neighborhood = document.getElementById('customer-neighborhood').value.trim();
+      const city = document.getElementById('customer-city').value.trim();
+      const complement = document.getElementById('customer-complement').value.trim();
+
+      const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+      // 1) SALVA NO FIRESTORE (aparece no admin em qualquer aparelho)
+      const orderDoc = {
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        status: "new",
+        customer: {
+          name,
+          phone,
+          addressLine: `${address} — ${neighborhood}, ${city} • CEP ${cep}${complement ? " • " + complement : ""}`
+        },
+        items: cart.map(item => ({
+          name: item.name,
+          qty: item.quantity,
+          price: item.price,
+          emoji: item.emoji || ""
+        })),
+        total: totalPrice
+      };
+
+      await addDoc(collection(db, "orders"), orderDoc);
+
+      // 2) MONTA WHATSAPP E ABRE (funciona sempre)
+      let message = `🍽️ *NOVO PEDIDO*\\n\\n`;
+      message += `👤 *Cliente:* ${name}\\n`;
+      message += `📱 *Telefone:* ${phone}\\n\\n`;
+      message += `📍 *Endereço de Entrega:*\\n`;
+      message += `${address}\\n`;
+      message += `Bairro: ${neighborhood}\\n`;
+      message += `Cidade: ${city}\\n`;
+      message += `CEP: ${cep}\\n`;
+      if (complement) message += `Complemento: ${complement}\\n`;
+
+      message += `\\n🛒 *Itens do Pedido:*\\n\\n`;
+      cart.forEach(item => {
+        const emoji = item.emoji || "🍽️";
+        message += `${emoji} ${item.quantity}x ${item.name}\\n`;
+        message += `   R$ ${(item.price * item.quantity).toFixed(2)}\\n\\n`;
+      });
+
+      message += `💰 *TOTAL: R$ ${totalPrice.toFixed(2)}*\\n\\n`;
+      message += `⏱️ Tempo estimado: 45min a 1:20' minutos`;
+
+      const sdkNumber = window.elementSdk?.config?.whatsapp_number;
+      const whatsappNumber = (sdkNumber || defaultConfig.whatsapp_number || '').replace(/\D/g, '');
+      const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+
+      // fecha modal + limpa carrinho
+      closeCheckout();
+      document.getElementById('success-modal')?.classList.add('active');
+
+      setTimeout(() => window.open(whatsappUrl, '_blank', 'noopener,noreferrer'), 500);
+
+      checkoutForm.reset();
+      cart = [];
+      updateCartUI();
+    });
+  }
+</script>
+
 </body>
 </html>

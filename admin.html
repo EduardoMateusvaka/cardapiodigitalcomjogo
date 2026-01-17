@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="pt-BR" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel do Restaurante (Admin)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body { font-family: 'Poppins', sans-serif; }
+    * { scrollbar-width: thin; scrollbar-color: #d97706 #0b0b0b; }
+    .card { background: linear-gradient(135deg,#1c1c1c 0%, #141414 100%); border: 1px solid #2c2c2c; border-radius: 18px; }
+    .btn { border-radius: 14px; padding: 10px 12px; font-weight: 800; }
+    .btn-primary { background: linear-gradient(135deg,#d97706 0%,#b45309 100%); color:#141414; }
+    .btn-dark { background:#0f0f0f; border:1px solid #2c2c2c; color:#fde68a; }
+    .btn-green { background: linear-gradient(135deg,#22c55e 0%,#16a34a 100%); color:#06140b; }
+    .btn-blue { background: linear-gradient(135deg,#3b82f6 0%,#1d4ed8 100%); color:#0b1020; }
+    .btn-red { background: linear-gradient(135deg,#ef4444 0%,#b91c1c 100%); color:#170505; }
+    .badge { border-radius: 999px; padding: 6px 10px; font-weight: 800; font-size: 12px; display:inline-flex; align-items:center; gap:6px; }
+    .badge-new { background: rgba(217,119,6,.18); border:1px solid rgba(217,119,6,.35); color:#fde68a; }
+    .badge-prep { background: rgba(59,130,246,.18); border:1px solid rgba(59,130,246,.35); color:#bfdbfe; }
+    .badge-out { background: rgba(34,197,94,.18); border:1px solid rgba(34,197,94,.35); color:#bbf7d0; }
+    .badge-done { background: rgba(168,85,247,.18); border:1px solid rgba(168,85,247,.35); color:#e9d5ff; }
+    .badge-cancel { background: rgba(239,68,68,.16); border:1px solid rgba(239,68,68,.35); color:#fecaca; }
+    .title { font-family:'Playfair Display', serif; }
+    .input { width:100%; background:#0f0f0f; border:1px solid #2c2c2c; border-radius: 14px; padding: 12px 14px; color:#fef3c7; }
+    .muted { color:#a3a3a3; }
+    .divider { border-top: 1px solid #2c2c2c; }
+  </style>
+</head>
+
+<body class="h-full bg-black text-white">
+  <!-- LOGIN OVERLAY -->
+  <div id="login-overlay" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 p-4">
+    <div class="card w-full max-w-md p-6">
+      <h2 class="text-2xl font-extrabold title" style="color:#fde68a;">🔒 Entrar no Painel</h2>
+      <p class="text-sm muted mt-1">Use o email e senha cadastrados no Firebase Auth.</p>
+
+      <div class="mt-5 space-y-3">
+        <div>
+          <label class="text-sm font-semibold" style="color:#fde68a;">Email</label>
+          <input id="login-email" class="input mt-2" type="email" placeholder="restaurante@email.com" />
+        </div>
+        <div>
+          <label class="text-sm font-semibold" style="color:#fde68a;">Senha</label>
+          <input id="login-pass" class="input mt-2" type="password" placeholder="********" />
+        </div>
+
+        <button id="login-btn" class="btn btn-primary w-full mt-2">Entrar</button>
+
+        <p id="login-error" class="text-sm mt-2 hidden" style="color:#ef4444;">Email ou senha inválidos.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="app" class="min-h-screen hidden">
+    <!-- Topbar -->
+    <header class="sticky top-0 z-50 backdrop-blur bg-black/70 border-b border-neutral-800">
+      <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div>
+          <h1 class="text-2xl md:text-3xl font-bold title" style="color:#fde68a;">Painel do Restaurante</h1>
+          <p class="text-sm muted">Pedidos em tempo real (Firebase)</p>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <button id="btn-refresh" class="btn btn-dark">🔄 Atualizar</button>
+          <button id="btn-logout" class="btn btn-red">Sair</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- Left: Orders -->
+      <section class="lg:col-span-8 space-y-6">
+        <!-- Filters -->
+        <div class="card p-5">
+          <div class="flex flex-col md:flex-row md:items-end gap-4">
+            <div class="flex-1">
+              <label class="text-sm font-semibold" style="color:#fde68a;">Buscar (nome / telefone / item)</label>
+              <input id="search" class="input mt-2" placeholder="Ex: João, 1199..., Smash..." />
+            </div>
+
+            <div class="w-full md:w-56">
+              <label class="text-sm font-semibold" style="color:#fde68a;">Status</label>
+              <select id="filter-status" class="input mt-2">
+                <option value="all">Todos</option>
+                <option value="new">Novo</option>
+                <option value="preparing">Preparando</option>
+                <option value="out_for_delivery">Saiu p/ entrega</option>
+                <option value="done">Feito</option>
+                <option value="cancelled">Cancelado</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Orders list -->
+        <div class="card p-5">
+          <div class="flex items-center justify-between gap-3">
+            <h2 class="text-xl font-bold title" style="color:#fde68a;">Fila de Pedidos</h2>
+            <span id="orders-count" class="badge badge-new">🧾 0 pedido(s)</span>
+          </div>
+
+          <div id="orders-empty" class="mt-6 p-6 rounded-xl bg-neutral-950 border border-neutral-800 text-center hidden">
+            <p class="text-lg font-bold" style="color:#fde68a;">Nenhum pedido ainda</p>
+            <p class="text-sm muted mt-1">Quando o cliente enviar, ele aparece aqui.</p>
+          </div>
+
+          <div id="orders-list" class="mt-5 space-y-4"></div>
+        </div>
+      </section>
+
+      <!-- Right: Quick -->
+      <section class="lg:col-span-4 space-y-6">
+        <div class="card p-5">
+          <h2 class="text-xl font-bold title" style="color:#fde68a;">Ações rápidas</h2>
+          <p class="text-sm muted mt-2">
+            Dica: clique em “Abrir WhatsApp” em um pedido para responder rápido.
+          </p>
+          <div class="divider my-5"></div>
+          <p class="text-xs muted">Obs.: WhatsApp oficial (API) precisa de backend para token. Aqui abrimos o WhatsApp Web/App com a mensagem pronta.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module">
+    // ==============================
+    // FIREBASE (CDN - modular v10)
+    // ==============================
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, collection, query, orderBy, onSnapshot, doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // ✅ COLE AQUI O SEU firebaseConfig
+    const firebaseConfig = {
+      apiKey: "SUA_API_KEY",
+      authDomain: "SEU_AUTH_DOMAIN",
+      projectId: "SEU_PROJECT_ID",
+      storageBucket: "SEU_STORAGE_BUCKET",
+      messagingSenderId: "SEU_SENDER_ID",
+      appId: "SEU_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // ==============================
+    // UI HELPERS
+    // ==============================
+    const $ = (id) => document.getElementById(id);
+
+    function moneyBR(value){
+      const n = Number(value || 0);
+      return n.toLocaleString("pt-BR", { style:"currency", currency:"BRL" });
+    }
+
+    function escapeHtml(str){
+      return String(str || "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function statusBadge(status){
+      if(status === "new") return `<span class="badge badge-new">🆕 Novo</span>`;
+      if(status === "preparing") return `<span class="badge badge-prep">👨‍🍳 Preparando</span>`;
+      if(status === "out_for_delivery") return `<span class="badge badge-out">🚚 Saiu</span>`;
+      if(status === "done") return `<span class="badge badge-done">✅ Feito</span>`;
+      if(status === "cancelled") return `<span class="badge badge-cancel">⛔ Cancelado</span>`;
+      return `<span class="badge badge-new">🆕 Novo</span>`;
+    }
+
+    function buildWhatsAppLink(order){
+      // Você pode colocar o número do restaurante aqui (fixo) se quiser:
+      // const RESTAURANT_PHONE = "5511999999999";
+      // return `https://wa.me/${RESTAURANT_PHONE}?text=${encodeURIComponent(text)}`
+      // Como admin vai responder o cliente, aqui geramos a msg e você clica e abre o WhatsApp com ela.
+      const items = (order.items||[]).map(i => `- ${i.qty}x ${i.name} (${moneyBR(i.price*i.qty)})`).join("\n");
+      const text =
+`✅ Pedido recebido!
+Cliente: ${order.customer?.name || ""}
+Telefone: ${order.customer?.phone || ""}
+Endereço: ${order.customer?.addressLine || ""}
+
+Itens:
+${items}
+
+Total: ${moneyBR(order.total || 0)}
+
+Responda aqui para confirmar.`;
+      const phone = String(order.customer?.phone || "").replace(/\D/g,"");
+      // Se o telefone do cliente vier vazio, abre sem número (WhatsApp Web)
+      return phone
+        ? `https://wa.me/${phone}?text=${encodeURIComponent(text)}`
+        : `https://wa.me/?text=${encodeURIComponent(text)}`;
+    }
+
+    // ==============================
+    // AUTH FLOW
+    // ==============================
+    $("login-btn").addEventListener("click", async () => {
+      $("login-error").classList.add("hidden");
+
+      const email = ($("login-email").value || "").trim();
+      const pass = ($("login-pass").value || "").trim();
+
+      try {
+        await signInWithEmailAndPassword(auth, email, pass);
+      } catch (e) {
+        $("login-error").classList.remove("hidden");
+      }
+    });
+
+    $("login-pass").addEventListener("keydown", (e) => {
+      if(e.key === "Enter") $("login-btn").click();
+    });
+
+    $("btn-logout").addEventListener("click", async () => {
+      await signOut(auth);
+    });
+
+    // ==============================
+    // ORDERS (REALTIME)
+    // ==============================
+    let unsubOrders = null;
+    let liveOrders = [];
+
+    function applyFilters(orders){
+      const q = ($("search").value || "").toLowerCase().trim();
+      const st = $("filter-status").value;
+
+      let list = [...orders];
+
+      if(st !== "all") list = list.filter(o => o.status === st);
+
+      if(q){
+        list = list.filter(o => {
+          const itemsText = (o.items || []).map(i => i.name).join(" ");
+          return (
+            (o.customer?.name || "").toLowerCase().includes(q) ||
+            (o.customer?.phone || "").toLowerCase().includes(q) ||
+            itemsText.toLowerCase().includes(q)
+          );
+        });
+      }
+
+      return list;
+    }
+
+    async function setOrderStatus(orderId, status){
+      const ref = doc(db, "orders", orderId);
+      await updateDoc(ref, { status, updatedAt: serverTimestamp() });
+    }
+
+    function renderOrders(){
+      const list = applyFilters(liveOrders);
+      $("orders-count").textContent = `🧾 ${list.length} pedido(s)`;
+      $("orders-empty").classList.toggle("hidden", list.length !== 0);
+
+      $("orders-list").innerHTML = list.map(o => {
+        const created = o.createdAt?.toDate ? o.createdAt.toDate() : new Date(o.createdAt || Date.now());
+        const time = created.toLocaleString("pt-BR");
+        const itemsHtml = (o.items || []).map(i =>
+          `<li class="flex justify-between gap-3">
+             <span class="text-sm" style="color:#fef3c7;">${i.qty}x ${escapeHtml(i.name)}</span>
+             <span class="text-sm font-bold" style="color:#d97706;">${moneyBR((i.price||0) * (i.qty||0))}</span>
+           </li>`
+        ).join("");
+
+        const waLink = buildWhatsAppLink(o);
+
+        return `
+          <div class="p-4 rounded-xl bg-neutral-950 border border-neutral-800">
+            <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
+              <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <p class="font-extrabold" style="color:#fde68a;">Pedido #${escapeHtml((o.id || "").slice(-6).toUpperCase())}</p>
+                  ${statusBadge(o.status)}
+                </div>
+                <p class="text-sm muted mt-1">${time}</p>
+
+                <div class="mt-3 text-sm">
+                  <p style="color:#fef3c7;"><span class="muted">Cliente:</span> <b>${escapeHtml(o.customer?.name || "—")}</b></p>
+                  <p style="color:#fef3c7;"><span class="muted">Telefone:</span> <b>${escapeHtml(o.customer?.phone || "—")}</b></p>
+                  <p class="mt-2 muted">Endereço:</p>
+                  <p style="color:#fef3c7;">${escapeHtml(o.customer?.addressLine || "—")}</p>
+                </div>
+              </div>
+
+              <div class="min-w-[240px]">
+                <div class="p-3 rounded-xl bg-black border border-neutral-800">
+                  <p class="text-xs muted">Total</p>
+                  <p class="text-2xl font-extrabold" style="color:#d97706;">${moneyBR(o.total || 0)}</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 mt-3">
+                  <button class="btn btn-dark" data-act="prep" data-id="${o.id}">👨‍🍳 Preparando</button>
+                  <button class="btn btn-blue" data-act="out" data-id="${o.id}">🚚 Saiu</button>
+                  <button class="btn btn-green" data-act="done" data-id="${o.id}">✅ Feito</button>
+                  <button class="btn btn-red" data-act="cancel" data-id="${o.id}">⛔ Cancelar</button>
+                </div>
+
+                <a class="btn btn-dark w-full mt-2 block text-center" href="${waLink}" target="_blank" rel="noopener">💬 Abrir WhatsApp</a>
+              </div>
+            </div>
+
+            <div class="divider my-4"></div>
+
+            <div>
+              <p class="text-sm font-bold" style="color:#fde68a;">Itens</p>
+              <ul class="mt-2 space-y-2">${itemsHtml}</ul>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      // bind actions
+      $("orders-list").querySelectorAll("button[data-act]").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const id = btn.getAttribute("data-id");
+          const act = btn.getAttribute("data-act");
+          const map = {
+            prep: "preparing",
+            out: "out_for_delivery",
+            done: "done",
+            cancel: "cancelled"
+          };
+          await setOrderStatus(id, map[act] || "new");
+        });
+      });
+    }
+
+    function startRealtime(){
+      if(unsubOrders) unsubOrders();
+
+      const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
+      unsubOrders = onSnapshot(q, (snap) => {
+        liveOrders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderOrders();
+      });
+    }
+
+    $("btn-refresh").addEventListener("click", () => renderOrders());
+    $("search").addEventListener("input", () => renderOrders());
+    $("filter-status").addEventListener("change", () => renderOrders());
+
+    // ==============================
+    // AUTH STATE
+    // ==============================
+    onAuthStateChanged(auth, (user) => {
+      if(user){
+        $("login-overlay").classList.add("hidden");
+        $("app").classList.remove("hidden");
+        startRealtime();
+      } else {
+        $("app").classList.add("hidden");
+        $("login-overlay").classList.remove("hidden");
+        if(unsubOrders) unsubOrders();
+        unsubOrders = null;
+        liveOrders = [];
+      }
+    });
+  </script>
+</body>
+</html>
