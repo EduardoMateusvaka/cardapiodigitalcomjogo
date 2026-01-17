@@ -1,14 +1,11 @@
 <!doctype html>
 <html lang="pt-BR" class="h-full">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cardápio Digital</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="/_sdk/element_sdk.js"></script>
-  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -22,364 +19,71 @@
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.85} }
     .whatsapp-btn { animation: bounce 2s infinite; }
     @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
-    .delivery-animation { position: relative; height: 50px; }
-    .delivery-bike { animation: bikeMove 3s ease-in-out infinite; }
-    .delivery-person { animation: personBounce 0.5s ease-in-out infinite; }
-    .delivery-box { animation: boxShake 0.6s ease-in-out infinite; }
-    .delivery-sparkle { animation: sparkle 1.5s ease-in-out infinite; }
-    @keyframes bikeMove {
-      0%,100%{transform:translateX(0) rotate(0deg)}
-      25%{transform:translateX(10px) rotate(2deg)}
-      50%{transform:translateX(0) rotate(0deg)}
-      75%{transform:translateX(-10px) rotate(-2deg)}
-    }
-    @keyframes personBounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-3px)} }
-    @keyframes boxShake {
-      0%,100%{transform:rotate(0deg) scale(1)}
-      25%{transform:rotate(-5deg) scale(1.05)}
-      75%{transform:rotate(5deg) scale(1.05)}
-    }
-    @keyframes sparkle { 0%,100%{opacity:0;transform:scale(.8)} 50%{opacity:1;transform:scale(1.2)} }
+    .modal-overlay{ position: fixed; inset: 0; background: rgba(0,0,0,.75); display: none; align-items: center; justify-content: center; z-index: 3000; padding: 16px; }
+    .modal-overlay.active{ display: flex; }
+    .modal-content{ width: 100%; max-width: 900px; border-radius: 18px; background: linear-gradient(135deg, #262626 0%, #1f1f1f 100%); border: 1px solid #404040; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+    .cart-fab{ position: fixed; right: 16px; bottom: 100px; z-index: 2500; display: none; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 999px; background: linear-gradient(135deg, #d97706 0%, #b45309 100%); color: #1a1a1a; font-weight: 800; box-shadow: 0 14px 30px rgba(217,119,6,.25); cursor: pointer; user-select: none; }
+    .cart-badge{ min-width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; background: rgba(26,26,26,.92); color: #fef3c7; font-weight: 800; padding: 0 8px; }
     .category-icon { transition: transform 0.3s ease; }
     .category-header:hover .category-icon { transform: scale(1.1); }
-
-    /* MODALS */
-    .modal-overlay{
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.75);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 3000;
-      padding: 16px;
-    }
-    .modal-overlay.active{ display: flex; }
-    .modal-content{
-      width: 100%;
-      max-width: 900px;
-      border-radius: 18px;
-      background: linear-gradient(135deg, #262626 0%, #1f1f1f 100%);
-      border: 1px solid #404040;
-      box-shadow: 0 20px 60px rgba(0,0,0,.5);
-    }
-    .game-frame{
-      width: 100%;
-      height: 70vh;
-      max-height: 520px;
-      border: 0;
-      border-radius: 14px;
-      background: #000;
-    }
-
-    /* Cart floating button */
-    .cart-fab{
-      position: fixed;
-      right: 16px;
-      bottom: 100px;
-      z-index: 2500;
-      display: none;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 14px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
-      color: #1a1a1a;
-      font-weight: 800;
-      box-shadow: 0 14px 30px rgba(217,119,6,.25);
-      cursor: pointer;
-      user-select: none;
-    }
-    .cart-badge{
-      min-width: 28px;
-      height: 28px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 999px;
-      background: rgba(26,26,26,.92);
-      color: #fef3c7;
-      font-weight: 800;
-      padding: 0 8px;
-    }
   </style>
 </head>
 
 <body class="h-full">
-  <div id="app-wrapper" class="h-full w-full overflow-auto"
-       style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);">
+  <div class="h-full w-full overflow-auto" style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);">
 
-    <!-- Header -->
-    <header class="relative overflow-hidden"
-            style="background: linear-gradient(135deg, #b91c1c 0%, #991b1b 50%, #7f1d1d 100%);">
-      <div class="absolute inset-0 opacity-10">
-        <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-          <pattern id="pattern" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-            <circle cx="10" cy="10" r="1" fill="#d97706" />
-          </pattern>
-          <rect width="100%" height="100%" fill="url(#pattern)" />
-        </svg>
-      </div>
-
+    <header class="relative overflow-hidden" style="background: linear-gradient(135deg, #b91c1c 0%, #991b1b 50%, #7f1d1d 100%);">
       <div class="relative px-6 py-8 text-center">
-        <div class="mb-4 flex justify-center">
-          <div class="w-20 h-20 rounded-full flex items-center justify-center"
-               style="background: linear-gradient(135deg, #d97706 0%, #b45309 100%); box-shadow: 0 4px 20px rgba(217, 119, 6, 0.4);">
-            <svg class="w-10 h-10" fill="#1a1a1a" viewBox="0 0 24 24">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
-            </svg>
-          </div>
-        </div>
+        <h1 class="text-3xl md:text-4xl font-bold mb-2" style="font-family:'Playfair Display',serif;color:#fef3c7;">Sabor &amp; Arte</h1>
+        <p class="text-lg opacity-90" style="font-family:'Poppins',sans-serif;color:#fde68a;">Sabor que conquista no primeiro pedido</p>
 
-        <h1 id="restaurant-name" class="text-3xl md:text-4xl font-bold mb-2"
-            style="font-family:'Playfair Display',serif;color:#fef3c7;">Sabor &amp; Arte</h1>
-        <p id="slogan" class="text-lg opacity-90"
-           style="font-family:'Poppins',sans-serif;color:#fde68a;">Sabor que conquista no primeiro pedido</p>
-
-        <div class="mt-6 inline-block px-6 py-3 rounded-full"
-             style="background: linear-gradient(135deg, #d97706 0%, #b45309 100%); box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3);">
+        <div class="mt-6 inline-block px-6 py-3 rounded-full" style="background: linear-gradient(135deg, #d97706 0%, #b45309 100%); box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3);">
           <p class="text-sm font-semibold" style="font-family:'Poppins',sans-serif;color:#1a1a1a;">
-            🔥 <span id="promo-title">Promoção do Dia</span>: <span id="promo-description">20% OFF em todos os lanches!</span>
+            🔥 Promoção do Dia: 20% OFF em todos os lanches!
           </p>
         </div>
       </div>
     </header>
 
-    <!-- Menu Content -->
     <main class="px-4 py-6 max-w-2xl mx-auto" style="font-family:'Poppins',sans-serif;">
 
-      <!-- Lanches -->
-      <section class="mb-8">
-        <div class="category-header flex items-center gap-3 mb-4 pb-2" style="border-bottom:2px solid #d97706;">
-          <span class="category-icon text-3xl">🍔</span>
-          <h2 class="text-2xl font-bold" style="color:#d97706;font-family:'Playfair Display',serif;">Lanches</h2>
-        </div>
-        <div class="space-y-3">
-          <div class="menu-item rounded-xl p-4 relative"
-               onclick="addToCart('Smash Burger Especial', 32.90, '🍔')"
-               style="background:linear-gradient(135deg,#262626 0%,#1f1f1f 100%);border:1px solid #404040;">
-            <div class="badge absolute -top-2 -right-2 px-3 py-1 rounded-full text-xs font-bold"
-                 style="background:linear-gradient(135deg,#d97706 0%,#b45309 100%);color:#1a1a1a;">⭐ Mais Vendido</div>
-            <div class="flex justify-between items-start">
-              <div class="flex-1 pr-4">
-                <h3 class="font-semibold text-lg" style="color:#fef3c7;">Smash Burger Especial</h3>
-                <p class="text-sm mt-1 opacity-80" style="color:#d6d3d1;">Dois hambúrgueres smash 90g, cheddar, bacon, cebola caramelizada e molho especial.</p>
-                <p class="text-xs mt-2" style="color:#9ca3af;">Clique para adicionar ao carrinho</p>
-              </div>
-              <div class="text-right"><span class="text-2xl font-bold" style="color:#d97706;">R$ 32,90</span></div>
-            </div>
-          </div>
+      <!-- Se não tiver produtos -->
+      <div id="empty-menu" class="hidden p-6 rounded-xl text-center mb-6"
+           style="background:linear-gradient(135deg,#262626 0%,#1f1f1f 100%);border:1px solid #404040;">
+        <p class="text-lg font-bold" style="color:#fde68a;">Ainda não há produtos cadastrados.</p>
+        <p class="text-sm mt-1" style="color:#d6d3d1;">O restaurante vai atualizar em instantes.</p>
+      </div>
 
-          <div class="menu-item rounded-xl p-4"
-               onclick="addToCart('X-Bacon Gourmet', 28.90, '🥓')"
-               style="background:linear-gradient(135deg,#262626 0%,#1f1f1f 100%);border:1px solid #404040;">
-            <div class="flex justify-between items-start">
-              <div class="flex-1 pr-4">
-                <h3 class="font-semibold text-lg" style="color:#fef3c7;">X-Bacon Gourmet</h3>
-                <p class="text-sm mt-1 opacity-80" style="color:#d6d3d1;">Hambúrguer 180g, queijo prato, bacon, alface e maionese trufada.</p>
-                <p class="text-xs mt-2" style="color:#9ca3af;">Clique para adicionar ao carrinho</p>
-              </div>
-              <div class="text-right"><span class="text-2xl font-bold" style="color:#d97706;">R$ 28,90</span></div>
-            </div>
-          </div>
+      <!-- Aqui entram as categorias automaticamente -->
+      <div id="menu-root" class="space-y-8"></div>
 
-          <div class="menu-item rounded-xl p-4 relative"
-               onclick="addToCart('X-Salada Clássico (Promo)', 19.90, '🥬')"
-               style="background:linear-gradient(135deg,#262626 0%,#1f1f1f 100%);border:1px solid #b91c1c;">
-            <div class="badge absolute -top-2 -right-2 px-3 py-1 rounded-full text-xs font-bold"
-                 style="background:linear-gradient(135deg,#b91c1c 0%,#991b1b 100%);color:#fef3c7;">🏷️ Promoção</div>
-            <div class="flex justify-between items-start">
-              <div class="flex-1 pr-4">
-                <h3 class="font-semibold text-lg" style="color:#fef3c7;">X-Salada Clássico</h3>
-                <p class="text-sm mt-1 opacity-80" style="color:#d6d3d1;">Hambúrguer 150g, queijo, alface, tomate, cebola e molho rosé.</p>
-                <p class="text-xs mt-2" style="color:#9ca3af;">Clique para adicionar ao carrinho</p>
-              </div>
-              <div class="text-right">
-                <span class="text-sm line-through opacity-60" style="color:#d6d3d1;">R$ 24,90</span>
-                <span class="text-2xl font-bold block" style="color:#d97706;">R$ 19,90</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Pizzas -->
-      <section class="mb-8">
-        <div class="category-header flex items-center gap-3 mb-4 pb-2" style="border-bottom:2px solid #d97706;">
-          <span class="category-icon text-3xl">🍕</span>
-          <h2 class="text-2xl font-bold" style="color:#d97706;font-family:'Playfair Display',serif;">Pizzas</h2>
-        </div>
-
-        <div class="space-y-3">
-          <div class="menu-item rounded-xl p-4 relative"
-               onclick="addToCart('Pepperoni Supreme', 49.90, '🍕')"
-               style="background:linear-gradient(135deg,#262626 0%,#1f1f1f 100%);border:1px solid #404040;">
-            <div class="badge absolute -top-2 -right-2 px-3 py-1 rounded-full text-xs font-bold"
-                 style="background:linear-gradient(135deg,#ec4899 0%,#db2777 100%);color:#fff;">💕 Queridinho</div>
-            <div class="flex justify-between items-start">
-              <div class="flex-1 pr-4">
-                <h3 class="font-semibold text-lg" style="color:#fef3c7;">Pepperoni Supreme</h3>
-                <p class="text-sm mt-1 opacity-80" style="color:#d6d3d1;">Mussarela premium, pepperoni artesanal e azeite trufado.</p>
-                <p class="text-xs mt-2" style="color:#9ca3af;">Clique para adicionar ao carrinho</p>
-              </div>
-              <div class="text-right"><span class="text-2xl font-bold" style="color:#d97706;">R$ 49,90</span></div>
-            </div>
-          </div>
-
-          <div class="menu-item rounded-xl p-4"
-               onclick="addToCart('Quatro Queijos', 52.90, '🧀')"
-               style="background:linear-gradient(135deg,#262626 0%,#1f1f1f 100%);border:1px solid #404040;">
-            <div class="flex justify-between items-start">
-              <div class="flex-1 pr-4">
-                <h3 class="font-semibold text-lg" style="color:#fef3c7;">Quatro Queijos</h3>
-                <p class="text-sm mt-1 opacity-80" style="color:#d6d3d1;">Mussarela, gorgonzola, parmesão e catupiry.</p>
-                <p class="text-xs mt-2" style="color:#9ca3af;">Clique para adicionar ao carrinho</p>
-              </div>
-              <div class="text-right"><span class="text-2xl font-bold" style="color:#d97706;">R$ 52,90</span></div>
-            </div>
-          </div>
-
-          <div class="menu-item rounded-xl p-4"
-               onclick="addToCart('Margherita Artesanal', 45.90, '🌿')"
-               style="background:linear-gradient(135deg,#262626 0%,#1f1f1f 100%);border:1px solid #404040;">
-            <div class="flex justify-between items-start">
-              <div class="flex-1 pr-4">
-                <h3 class="font-semibold text-lg" style="color:#fef3c7;">Margherita Artesanal</h3>
-                <p class="text-sm mt-1 opacity-80" style="color:#d6d3d1;">Mussarela de búfala, manjericão e tomate fresco.</p>
-                <p class="text-xs mt-2" style="color:#9ca3af;">Clique para adicionar ao carrinho</p>
-              </div>
-              <div class="text-right"><span class="text-2xl font-bold" style="color:#d97706;">R$ 45,90</span></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Bebidas -->
-      <section class="mb-8">
-        <div class="category-header flex items-center gap-3 mb-4 pb-2" style="border-bottom:2px solid #d97706;">
-          <span class="category-icon text-3xl">🥤</span>
-          <h2 class="text-2xl font-bold" style="color:#d97706;font-family:'Playfair Display',serif;">Bebidas</h2>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <div class="menu-item rounded-xl p-3 text-center"
-               onclick="addToCart('Refrigerante Lata', 6.00, '🥤')"
-               style="background:linear-gradient(135deg,#262626 0%,#1f1f1f 100%);border:1px solid #404040;">
-            <span class="text-2xl">🥤</span>
-            <h3 class="font-medium mt-1" style="color:#fef3c7;">Refrigerante Lata</h3>
-            <span class="text-lg font-bold" style="color:#d97706;">R$ 6,00</span>
-          </div>
-
-          <div class="menu-item rounded-xl p-3 text-center"
-               onclick="addToCart('Suco Natural', 12.00, '🧃')"
-               style="background:linear-gradient(135deg,#262626 0%,#1f1f1f 100%);border:1px solid #404040;">
-            <span class="text-2xl">🧃</span>
-            <h3 class="font-medium mt-1" style="color:#fef3c7;">Suco Natural</h3>
-            <span class="text-lg font-bold" style="color:#d97706;">R$ 12,00</span>
-          </div>
-
-          <div class="menu-item rounded-xl p-3 text-center"
-               onclick="addToCart('Cerveja Long Neck', 14.00, '🍺')"
-               style="background:linear-gradient(135deg,#262626 0%,#1f1f1f 100%);border:1px solid #404040;">
-            <span class="text-2xl">🍺</span>
-            <h3 class="font-medium mt-1" style="color:#fef3c7;">Cerveja Long Neck</h3>
-            <span class="text-lg font-bold" style="color:#d97706;">R$ 14,00</span>
-          </div>
-
-          <div class="menu-item rounded-xl p-3 text-center"
-               onclick="addToCart('Água Mineral', 4.00, '💧')"
-               style="background:linear-gradient(135deg,#262626 0%,#1f1f1f 100%);border:1px solid #404040;">
-            <span class="text-2xl">💧</span>
-            <h3 class="font-medium mt-1" style="color:#fef3c7;">Água Mineral</h3>
-            <span class="text-lg font-bold" style="color:#d97706;">R$ 4,00</span>
-          </div>
-        </div>
-      </section>
-
-      <!-- Sobremesas -->
-      <section class="mb-8">
-        <div class="category-header flex items-center gap-3 mb-4 pb-2" style="border-bottom:2px solid #d97706;">
-          <span class="category-icon text-3xl">🍰</span>
-          <h2 class="text-2xl font-bold" style="color:#d97706;font-family:'Playfair Display',serif;">Sobremesas</h2>
-        </div>
-
-        <div class="space-y-3">
-          <div class="menu-item rounded-xl p-4 relative"
-               onclick="addToCart('Petit Gâteau', 24.90, '🍫')"
-               style="background:linear-gradient(135deg,#262626 0%,#1f1f1f 100%);border:1px solid #404040;">
-            <div class="badge absolute -top-2 -right-2 px-3 py-1 rounded-full text-xs font-bold"
-                 style="background:linear-gradient(135deg,#ec4899 0%,#db2777 100%);color:#fff;">💖 Queridinho</div>
-            <div class="flex justify-between items-start">
-              <div class="flex-1 pr-4">
-                <h3 class="font-semibold text-lg" style="color:#fef3c7;">Petit Gâteau</h3>
-                <p class="text-sm mt-1 opacity-80" style="color:#d6d3d1;">Chocolate quente com sorvete e calda.</p>
-                <p class="text-xs mt-2" style="color:#9ca3af;">Clique para adicionar ao carrinho</p>
-              </div>
-              <div class="text-right"><span class="text-2xl font-bold" style="color:#d97706;">R$ 24,90</span></div>
-            </div>
-          </div>
-
-          <div class="menu-item rounded-xl p-4"
-               onclick="addToCart('Cheesecake de Frutas', 19.90, '🍓')"
-               style="background:linear-gradient(135deg,#262626 0%,#1f1f1f 100%);border:1px solid #404040;">
-            <div class="flex justify-between items-start">
-              <div class="flex-1 pr-4">
-                <h3 class="font-semibold text-lg" style="color:#fef3c7;">Cheesecake de Frutas</h3>
-                <p class="text-sm mt-1 opacity-80" style="color:#d6d3d1;">Cremoso com cobertura da estação.</p>
-                <p class="text-xs mt-2" style="color:#9ca3af;">Clique para adicionar ao carrinho</p>
-              </div>
-              <div class="text-right"><span class="text-2xl font-bold" style="color:#d97706;">R$ 19,90</span></div>
-            </div>
-          </div>
-
-          <div class="menu-item rounded-xl p-4"
-               onclick="addToCart('Brownie com Sorvete', 22.90, '🍦')"
-               style="background:linear-gradient(135deg,#262626 0%,#1f1f1f 100%);border:1px solid #404040;">
-            <div class="flex justify-between items-start">
-              <div class="flex-1 pr-4">
-                <h3 class="font-semibold text-lg" style="color:#fef3c7;">Brownie com Sorvete</h3>
-                <p class="text-sm mt-1 opacity-80" style="color:#d6d3d1;">Brownie artesanal com calda.</p>
-                <p class="text-xs mt-2" style="color:#9ca3af;">Clique para adicionar ao carrinho</p>
-              </div>
-              <div class="text-right"><span class="text-2xl font-bold" style="color:#d97706;">R$ 22,90</span></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- WhatsApp CTA -->
-      <div class="sticky bottom-4 z-50 px-4">
-        <div class="delivery-animation mb-3 flex items-center justify-center gap-2">
-          <span class="delivery-bike text-4xl">🏍️</span>
-          <span class="delivery-person text-3xl">🧑‍🍳</span>
-          <span class="delivery-box text-3xl">📦</span>
-          <span class="delivery-sparkle text-2xl">✨</span>
-        </div>
-
+      <!-- CTA WhatsApp -->
+      <div class="sticky bottom-4 z-50 px-4 mt-10">
         <a id="whatsapp-btn"
            href="https://wa.me/5511999999999?text=Olá! Gostaria de fazer um pedido"
            target="_blank" rel="noopener noreferrer"
            class="whatsapp-btn block w-full py-4 rounded-full text-center font-bold text-lg shadow-lg"
-           style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; font-family: 'Poppins', sans-serif; box-shadow: 0 4px 20px rgba(34, 197, 94, 0.4);">
+           style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; box-shadow: 0 4px 20px rgba(34, 197, 94, 0.4);">
           📲 Peça agora pelo WhatsApp
         </a>
+
+        <!-- Jogo (abre em nova aba – iframe pode bloquear) -->
+        <button id="btn-game" class="mt-3 w-full py-3 rounded-full font-extrabold"
+                style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color:#0b1020;">
+          🎮 Jogar Subway Surfers (abrir)
+        </button>
       </div>
 
-      <!-- Footer -->
       <footer class="mt-8 pb-24 text-center">
-        <div class="py-6 rounded-xl mx-4"
-             style="background: linear-gradient(135deg, #262626 0%, #1f1f1f 100%); border: 1px solid #404040;">
+        <div class="py-6 rounded-xl mx-4" style="background: linear-gradient(135deg, #262626 0%, #1f1f1f 100%); border: 1px solid #404040;">
           <p class="text-sm opacity-80" style="color: #d6d3d1;">📍 Delivery e Retirada</p>
           <p class="text-sm mt-1 opacity-60" style="color: #d6d3d1;">Seg a Dom: 11h às 23h</p>
-          <div class="flex justify-center gap-4 mt-4">
-            <span class="text-2xl">💳</span><span class="text-2xl">💵</span><span class="text-2xl">📱</span>
-          </div>
           <p class="text-xs mt-3 opacity-40" style="color: #d6d3d1;">Aceitamos Cartão, Dinheiro e Pix</p>
         </div>
       </footer>
     </main>
 
-    <!-- Floating cart button -->
+    <!-- Botão carrinho -->
     <div id="cart-btn" class="cart-fab" onclick="openCart()">
       🛒 Carrinho <span id="cart-count" class="cart-badge">0</span>
     </div>
@@ -462,328 +166,73 @@
 
           <button type="submit" class="w-full py-4 rounded-xl font-bold text-lg"
                   style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white;">
-            Enviar Pedido pelo WhatsApp 📲
+            Enviar Pedido 📲
           </button>
         </form>
       </div>
     </div>
 
-    <!-- Success Modal (com botao do jogo) -->
     <div id="success-modal" class="modal-overlay">
       <div class="modal-content p-8 text-center">
         <div class="text-8xl mb-4">✅</div>
         <h2 class="text-3xl font-bold mb-3" style="color:#22c55e; font-family:'Playfair Display',serif;">Pedido Pronto pra Enviar!</h2>
         <p class="text-lg mb-6" style="color:#d6d3d1;">Abriremos o WhatsApp para você confirmar e enviar. 🎉</p>
-
-        <div class="mb-6 p-4 rounded-xl" style="background:#1a1a1a; border:1px solid #404040;">
-          <p class="text-sm mb-2" style="color:#fef3c7;">Tempo estimado de entrega:</p>
-          <p class="text-2xl font-bold" style="color:#d97706;">30-45 minutos ⏱️</p>
-        </div>
-
-        <p class="text-sm mb-4" style="color:#d6d3d1;">Enquanto isso, que tal jogar um pouquinho? 🎮</p>
-
-        <button onclick="startGame()" class="w-full py-4 rounded-xl font-bold text-lg mb-3"
-                style="background: linear-gradient(135deg, #d97706 0%, #b45309 100%); color: #1a1a1a;">
-          Jogar Subway Surfers 🕹️
-        </button>
-
         <button onclick="closeSuccess()" class="text-sm" style="color:#d6d3d1;">Voltar ao cardápio</button>
       </div>
     </div>
 
-    <!-- Game Modal -->
-    <div id="game-modal" class="modal-overlay">
-      <div class="modal-content p-6">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-2xl font-bold" style="color:#d97706; font-family:'Playfair Display',serif;">Subway Surfers 🎮</h2>
-          <button onclick="closeGame()" class="text-3xl" style="color:#d6d3d1;">×</button>
-        </div>
-
-        <p class="text-sm mb-4" style="color:#d6d3d1;">
-          Alguns jogos bloqueiam abrir dentro do site. Se acontecer, use “Abrir em outra aba”.
-        </p>
-
-        <div class="flex flex-col sm:flex-row gap-3 mb-4">
-          <button onclick="loadSubway()" class="px-4 py-3 rounded-xl font-bold"
-                  style="background: linear-gradient(135deg, #d97706 0%, #b45309 100%); color:#1a1a1a;">
-            Carregar no modal ▶️
-          </button>
-
-          <a href="https://subway-surfers.gg/" target="_blank" rel="noopener noreferrer"
-             class="px-4 py-3 rounded-xl font-bold text-center"
-             style="background: #1a1a1a; border:1px solid #404040; color:#fef3c7;">
-            Abrir em outra aba ↗️
-          </a>
-        </div>
-
-        <iframe id="subway-frame"
-                class="game-frame"
-                title="Subway Surfers"
-                loading="lazy"
-                referrerpolicy="no-referrer"
-                allow="fullscreen; autoplay; gamepad"
-                sandbox="allow-same-origin allow-scripts allow-forms allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"></iframe>
-      </div>
-    </div>
   </div>
 
-  <!-- =========================
-       SCRIPT ÚNICO (SEM DUPLICAR)
-       ========================= -->
   <script type="module">
-    // Firebase
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    // ✅ SUA CONFIG (a do seu projeto)
     const firebaseConfig = {
       apiKey: "AIzaSyBqFZJ5wg3VIJlJtA4DgFS499_9rXu-zAk",
       authDomain: "cardapio-digital-adc3d.firebaseapp.com",
       projectId: "cardapio-digital-adc3d",
       storageBucket: "cardapio-digital-adc3d.firebasestorage.app",
       messagingSenderId: "762370492160",
-      appId: "1:762370492160:web:ef58dc5ae5c27da16895e5"
+      appId: "1:762370492160:web:86a86687c52a76f56895e5"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // STATE
-    let cart = [];
-
-    const defaultConfig = {
-      whatsapp_number: "5511999999999"
-    };
-
-    // HELPERS
-    const money = (v) => `R$ ${Number(v || 0).toFixed(2)}`;
-    const digits = (v) => String(v || "").replace(/\D/g, "");
-
-    // TOAST
-    function showToast(message) {
-      const toast = document.createElement("div");
-      toast.textContent = message;
-      toast.style.cssText = `
-        position: fixed; top: 80px; right: 20px;
-        background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
-        color: #1a1a1a; padding: 12px 18px; border-radius: 999px;
-        font-weight: 800; z-index: 5000; box-shadow: 0 10px 30px rgba(0,0,0,.35);
-      `;
-      document.body.appendChild(toast);
-      setTimeout(() => toast.remove(), 2200);
-    }
-
-    // UI CART
-    function updateCartUI() {
-      const cartBtn = document.getElementById("cart-btn");
-      const cartCount = document.getElementById("cart-count");
-      const cartItems = document.getElementById("cart-items");
-      const cartTotal = document.getElementById("cart-total");
-
-      const totalItems = cart.reduce((s, i) => s + i.quantity, 0);
-      const totalPrice = cart.reduce((s, i) => s + i.price * i.quantity, 0);
-
-      if (totalItems > 0) {
-        cartBtn.style.display = "inline-flex";
-        cartCount.textContent = totalItems;
-      } else {
-        cartBtn.style.display = "none";
-      }
-
-      if (cart.length === 0) {
-        cartItems.innerHTML = '<p class="text-center py-8" style="color:#d6d3d1;">Seu carrinho está vazio</p>';
-      } else {
-        cartItems.innerHTML = cart.map((item, idx) => `
-          <div class="flex items-center gap-3 p-3 rounded-lg" style="background:#1a1a1a; border:1px solid #404040;">
-            <span class="text-2xl">${item.emoji}</span>
-            <div class="flex-1">
-              <h4 class="font-semibold" style="color:#fef3c7;">${item.name}</h4>
-              <p class="text-sm" style="color:#d97706;">${money(item.price)}</p>
-            </div>
-            <div class="flex items-center gap-2">
-              <button data-dec="${idx}" class="w-8 h-8 rounded-full font-bold" style="background:#404040; color:#fef3c7;">-</button>
-              <span class="w-8 text-center font-bold" style="color:#fef3c7;">${item.quantity}</span>
-              <button data-inc="${idx}" class="w-8 h-8 rounded-full font-bold" style="background:#d97706; color:#1a1a1a;">+</button>
-            </div>
-            <button data-del="${idx}" class="text-xl" style="color:#ef4444;">🗑️</button>
-          </div>
-        `).join("");
-
-        cartItems.querySelectorAll("button[data-dec]").forEach((b) => {
-          b.onclick = () => {
-            const i = Number(b.dataset.dec);
-            cart[i].quantity--;
-            if (cart[i].quantity <= 0) cart.splice(i, 1);
-            updateCartUI();
-          };
-        });
-        cartItems.querySelectorAll("button[data-inc]").forEach((b) => {
-          b.onclick = () => {
-            const i = Number(b.dataset.inc);
-            cart[i].quantity++;
-            updateCartUI();
-          };
-        });
-        cartItems.querySelectorAll("button[data-del]").forEach((b) => {
-          b.onclick = () => {
-            const i = Number(b.dataset.del);
-            cart.splice(i, 1);
-            updateCartUI();
-          };
-        });
-      }
-
-      cartTotal.textContent = money(totalPrice);
-    }
-
-    // CART API (global)
-    window.addToCart = function (name, price, emoji) {
-      const existing = cart.find((i) => i.name === name);
-      if (existing) existing.quantity++;
-      else cart.push({ name, price, emoji, quantity: 1 });
-      updateCartUI();
-      showToast(`${emoji} ${name} adicionado!`);
-    };
-
-    window.openCart = function () {
-      if (cart.length === 0) {
-        showToast("⚠️ Adicione itens ao carrinho primeiro!");
-        return;
-      }
-      document.getElementById("cart-modal").classList.add("active");
-    };
-
-    window.closeCart = function () {
-      document.getElementById("cart-modal").classList.remove("active");
-    };
-
-    window.openCheckout = function () {
-      if (cart.length === 0) return;
-      window.closeCart();
-      document.getElementById("checkout-modal").classList.add("active");
-    };
-
-    window.closeCheckout = function () {
-      document.getElementById("checkout-modal").classList.remove("active");
-    };
-
-    window.closeSuccess = function () {
-      document.getElementById("success-modal").classList.remove("active");
-      cart = [];
-      updateCartUI();
-    };
-
-    // MODALS click outside
-    document.querySelectorAll(".modal-overlay").forEach((modal) => {
-      modal.addEventListener("click", function (e) {
-        if (e.target === this) this.classList.remove("active");
-      });
+    // Abrir jogo (fallback novo tab)
+    document.getElementById("btn-game").addEventListener("click", ()=>{
+      window.open("https://poki.com/br/g/subway-surfers", "_blank", "noopener,noreferrer");
     });
 
-    // CEP mask
-    const cepInput = document.getElementById("customer-cep");
-    if (cepInput) {
-      cepInput.addEventListener("input", function (e) {
-        let v = e.target.value.replace(/\D/g, "");
-        if (v.length > 5) v = v.slice(0, 5) + "-" + v.slice(5, 8);
-        e.target.value = v;
-      });
-    }
+    // ======= CARDÁPIO DINÂMICO (products) =======
+    const menuRoot = document.getElementById("menu-root");
+    const emptyMenu = document.getElementById("empty-menu");
 
-    // GAME
-    window.startGame = function () {
-      document.getElementById("success-modal").classList.remove("active");
-      document.getElementById("game-modal").classList.add("active");
-      window.loadSubway();
+    const categoryMeta = {
+      "Lanches": { icon:"🍔" },
+      "Pizzas": { icon:"🍕" },
+      "Pratos Principais": { icon:"🍝" },
+      "Bebidas": { icon:"🥤" },
+      "Sobremesas": { icon:"🍰" }
     };
 
-    window.closeGame = function () {
-      document.getElementById("game-modal").classList.remove("active");
-      const frame = document.getElementById("subway-frame");
-      if (frame) frame.src = "";
-    };
+    function money(v){ return `R$ ${Number(v||0).toFixed(2)}`; }
 
-    window.loadSubway = function () {
-      const frame = document.getElementById("subway-frame");
-      if (!frame) return;
-      frame.src = "https://subway-surfers.gg/";
-    };
-
-    // SUBMIT -> Firestore + WhatsApp
-    const form = document.getElementById("checkout-form");
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const name = document.getElementById("customer-name").value.trim();
-      const phone = document.getElementById("customer-phone").value.trim();
-      const cep = document.getElementById("customer-cep").value.trim();
-      const address = document.getElementById("customer-address").value.trim();
-      const neighborhood = document.getElementById("customer-neighborhood").value.trim();
-      const city = document.getElementById("customer-city").value.trim();
-      const complement = document.getElementById("customer-complement").value.trim();
-
-      if (!cart.length) {
-        alert("Carrinho vazio.");
+    function renderMenu(products){
+      if(!products.length){
+        emptyMenu.classList.remove("hidden");
+        menuRoot.innerHTML = "";
         return;
       }
+      emptyMenu.classList.add("hidden");
 
-      const total = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
-
-      // 1) salva no Firestore (aparece no admin em qualquer aparelho)
-      const orderDoc = {
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-        status: "new",
-        customer: {
-          name,
-          phone,
-          addressLine: `${address} — ${neighborhood}, ${city} • CEP ${cep}${complement ? " • " + complement : ""}`
-        },
-        items: cart.map((i) => ({
-          name: i.name,
-          qty: i.quantity,
-          price: i.price,
-          emoji: i.emoji || ""
-        })),
-        total: Number(total)
-      };
-
-      await addDoc(collection(db, "orders"), orderDoc);
-
-      // 2) monta whatsapp
-      let msg = `🍽️ *NOVO PEDIDO*\\n\\n`;
-      msg += `👤 *Cliente:* ${name}\\n`;
-      msg += `📱 *Telefone:* ${phone}\\n\\n`;
-      msg += `📍 *Endereço:*\\n${orderDoc.customer.addressLine}\\n\\n`;
-      msg += `🛒 *Itens:*\\n\\n`;
-      orderDoc.items.forEach((i) => {
-        const em = i.emoji || "🍽️";
-        msg += `${em} ${i.qty}x ${i.name}\\n`;
-        msg += `   R$ ${(i.price * i.qty).toFixed(2)}\\n\\n`;
+      // agrupa por categoria
+      const groups = {};
+      products.forEach(p=>{
+        const cat = p.category || "Outros";
+        if(!groups[cat]) groups[cat] = [];
+        groups[cat].push(p);
       });
-      msg += `💰 *TOTAL: R$ ${orderDoc.total.toFixed(2)}*\\n\\n`;
-      msg += `⏱️ Tempo estimado: 45min a 1:20h`;
 
-      const sdkNumber = window.elementSdk?.config?.whatsapp_number;
-      const restaurantPhone = digits(sdkNumber || defaultConfig.whatsapp_number);
-
-      const waUrl = restaurantPhone
-        ? `https://wa.me/${restaurantPhone}?text=${encodeURIComponent(msg)}`
-        : `https://wa.me/?text=${encodeURIComponent(msg)}`;
-
-      // UI
-      window.closeCheckout();
-      document.getElementById("success-modal").classList.add("active");
-
-      setTimeout(() => window.open(waUrl, "_blank", "noopener,noreferrer"), 500);
-
-      form.reset();
-      cart = [];
-      updateCartUI();
-    });
-
-    // Init
-    updateCartUI();
-  </script>
-</body>
-</html>
+      // ordena categorias na ordem desejada
+      const orderedCats = ["Lanches","Pizzas","Pratos Principais]()
