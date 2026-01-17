@@ -34,6 +34,7 @@
 </head>
 
 <body class="h-full bg-black text-white">
+
   <!-- LOGIN OVERLAY -->
   <div id="login-overlay" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 p-4">
     <div class="card w-full max-w-md p-6">
@@ -43,15 +44,14 @@
       <div class="mt-5 space-y-3">
         <div>
           <label class="text-sm font-semibold" style="color:#fde68a;">Email</label>
-          <input id="login-email" class="input mt-2" type="email" placeholder="restaurante@email.com" />
+          <input id="login-email" class="input mt-2" type="email" placeholder="restaurante@email.com" autocomplete="username" />
         </div>
         <div>
           <label class="text-sm font-semibold" style="color:#fde68a;">Senha</label>
-          <input id="login-pass" class="input mt-2" type="password" placeholder="********" />
+          <input id="login-pass" class="input mt-2" type="password" placeholder="********" autocomplete="current-password" />
         </div>
 
         <button id="login-btn" class="btn btn-primary w-full mt-2">Entrar</button>
-
         <p id="login-error" class="text-sm mt-2 hidden" style="color:#ef4444;">Email ou senha inválidos.</p>
       </div>
     </div>
@@ -130,20 +130,34 @@
 
   <script type="module">
     // ==============================
-    // FIREBASE (CDN - modular v10)
+    // FIREBASE (CDN - modular v10.12.2)
     // ==============================
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, collection, query, orderBy, onSnapshot, doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import {
+      getAuth,
+      signInWithEmailAndPassword,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getFirestore,
+      collection,
+      query,
+      orderBy,
+      onSnapshot,
+      doc,
+      updateDoc,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    // ✅ COLE AQUI O SEU firebaseConfig
+    // ✅ SEU firebaseConfig (USAR O MESMO DO INDEX.HTML)
     const firebaseConfig = {
-      apiKey: "SUA_API_KEY",
-      authDomain: "SEU_AUTH_DOMAIN",
-      projectId: "SEU_PROJECT_ID",
-      storageBucket: "SEU_STORAGE_BUCKET",
-      messagingSenderId: "SEU_SENDER_ID",
-      appId: "SEU_APP_ID"
+      apiKey: "AIzaSyBqFZJ5wg3VIJlJtA4DgFS499_9rXu-zAk",
+      authDomain: "cardapio-digital-adc3d.firebaseapp.com",
+      projectId: "cardapio-digital-adc3d",
+      storageBucket: "cardapio-digital-adc3d.firebasestorage.app",
+      messagingSenderId: "762370492160",
+      appId: "1:762370492160:web:86a86687c52a76f56895e5"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -178,12 +192,18 @@
       return `<span class="badge badge-new">🆕 Novo</span>`;
     }
 
+    function normalizePhoneBR(phone){
+      const digits = String(phone || "").replace(/\D/g, "");
+      if(!digits) return "";
+      if(digits.startsWith("55")) return digits;
+      return "55" + digits;
+    }
+
     function buildWhatsAppLink(order){
-      // Você pode colocar o número do restaurante aqui (fixo) se quiser:
-      // const RESTAURANT_PHONE = "5511999999999";
-      // return `https://wa.me/${RESTAURANT_PHONE}?text=${encodeURIComponent(text)}`
-      // Como admin vai responder o cliente, aqui geramos a msg e você clica e abre o WhatsApp com ela.
-      const items = (order.items||[]).map(i => `- ${i.qty}x ${i.name} (${moneyBR(i.price*i.qty)})`).join("\n");
+      const items = (order.items||[])
+        .map(i => `- ${i.qty}x ${i.name} (${moneyBR((i.price||0) * (i.qty||0))})`)
+        .join("\n");
+
       const text =
 `✅ Pedido recebido!
 Cliente: ${order.customer?.name || ""}
@@ -196,8 +216,9 @@ ${items}
 Total: ${moneyBR(order.total || 0)}
 
 Responda aqui para confirmar.`;
-      const phone = String(order.customer?.phone || "").replace(/\D/g,"");
-      // Se o telefone do cliente vier vazio, abre sem número (WhatsApp Web)
+
+      // abre para o cliente (se tiver telefone)
+      const phone = normalizePhoneBR(order.customer?.phone || "");
       return phone
         ? `https://wa.me/${phone}?text=${encodeURIComponent(text)}`
         : `https://wa.me/?text=${encodeURIComponent(text)}`;
@@ -206,7 +227,7 @@ Responda aqui para confirmar.`;
     // ==============================
     // AUTH FLOW
     // ==============================
-    $("login-btn").addEventListener("click", async () => {
+    async function doLogin(){
       $("login-error").classList.add("hidden");
 
       const email = ($("login-email").value || "").trim();
@@ -217,10 +238,11 @@ Responda aqui para confirmar.`;
       } catch (e) {
         $("login-error").classList.remove("hidden");
       }
-    });
+    }
 
+    $("login-btn").addEventListener("click", doLogin);
     $("login-pass").addEventListener("keydown", (e) => {
-      if(e.key === "Enter") $("login-btn").click();
+      if(e.key === "Enter") doLogin();
     });
 
     $("btn-logout").addEventListener("click", async () => {
@@ -262,27 +284,34 @@ Responda aqui para confirmar.`;
 
     function renderOrders(){
       const list = applyFilters(liveOrders);
+
       $("orders-count").textContent = `🧾 ${list.length} pedido(s)`;
       $("orders-empty").classList.toggle("hidden", list.length !== 0);
 
       $("orders-list").innerHTML = list.map(o => {
-        const created = o.createdAt?.toDate ? o.createdAt.toDate() : new Date(o.createdAt || Date.now());
-        const time = created.toLocaleString("pt-BR");
+        // createdAt pode vir como Timestamp do Firestore
+        let createdDate = new Date();
+        if (o.createdAt?.toDate) createdDate = o.createdAt.toDate();
+        else if (typeof o.createdAt === "string") createdDate = new Date(o.createdAt);
+        const time = createdDate.toLocaleString("pt-BR");
+
         const itemsHtml = (o.items || []).map(i =>
           `<li class="flex justify-between gap-3">
-             <span class="text-sm" style="color:#fef3c7;">${i.qty}x ${escapeHtml(i.name)}</span>
+             <span class="text-sm" style="color:#fef3c7;">${Number(i.qty||0)}x ${escapeHtml(i.name)}</span>
              <span class="text-sm font-bold" style="color:#d97706;">${moneyBR((i.price||0) * (i.qty||0))}</span>
            </li>`
         ).join("");
 
         const waLink = buildWhatsAppLink(o);
 
+        const shortId = (o.id || "").slice(-6).toUpperCase() || "------";
+
         return `
           <div class="p-4 rounded-xl bg-neutral-950 border border-neutral-800">
             <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
               <div>
                 <div class="flex items-center gap-2 flex-wrap">
-                  <p class="font-extrabold" style="color:#fde68a;">Pedido #${escapeHtml((o.id || "").slice(-6).toUpperCase())}</p>
+                  <p class="font-extrabold" style="color:#fde68a;">Pedido #${escapeHtml(shortId)}</p>
                   ${statusBadge(o.status)}
                 </div>
                 <p class="text-sm muted mt-1">${time}</p>
@@ -341,10 +370,13 @@ Responda aqui para confirmar.`;
     function startRealtime(){
       if(unsubOrders) unsubOrders();
 
-      const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
-      unsubOrders = onSnapshot(q, (snap) => {
+      // ⚠️ precisa ter createdAt no pedido (serverTimestamp no index.html)
+      const qy = query(collection(db, "orders"), orderBy("createdAt", "desc"));
+      unsubOrders = onSnapshot(qy, (snap) => {
         liveOrders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         renderOrders();
+      }, () => {
+        // se der erro por permissão, vai continuar no login; regras provavelmente estão bloqueando
       });
     }
 
@@ -366,6 +398,9 @@ Responda aqui para confirmar.`;
         if(unsubOrders) unsubOrders();
         unsubOrders = null;
         liveOrders = [];
+        $("orders-list").innerHTML = "";
+        $("orders-count").textContent = "🧾 0 pedido(s)";
+        $("orders-empty").classList.add("hidden");
       }
     });
   </script>
