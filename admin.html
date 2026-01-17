@@ -20,6 +20,7 @@
     .btn-green { background: linear-gradient(135deg,#22c55e 0%,#16a34a 100%); color:#06140b; }
     .btn-blue { background: linear-gradient(135deg,#3b82f6 0%,#1d4ed8 100%); color:#0b1020; }
     .btn-red { background: linear-gradient(135deg,#ef4444 0%,#b91c1c 100%); color:#170505; }
+    .btn-purple { background: linear-gradient(135deg,#a855f7 0%,#7c3aed 100%); color:#14051a; }
     .badge { border-radius: 999px; padding: 6px 10px; font-weight: 800; font-size: 12px; display:inline-flex; align-items:center; gap:6px; }
     .badge-new { background: rgba(217,119,6,.18); border:1px solid rgba(217,119,6,.35); color:#fde68a; }
     .badge-prep { background: rgba(59,130,246,.18); border:1px solid rgba(59,130,246,.35); color:#bfdbfe; }
@@ -30,6 +31,16 @@
     .input { width:100%; background:#0f0f0f; border:1px solid #2c2c2c; border-radius: 14px; padding: 12px 14px; color:#fef3c7; }
     .muted { color:#a3a3a3; }
     .divider { border-top: 1px solid #2c2c2c; }
+    .tab-btn { border-radius: 999px; padding: 10px 14px; font-weight: 900; border:1px solid #2c2c2c; background:#0f0f0f; color:#fde68a; }
+    .tab-btn.active { background: linear-gradient(135deg,#d97706 0%,#b45309 100%); color:#141414; border-color: rgba(217,119,6,.65); }
+    .modal-overlay{
+      position: fixed; inset:0; background: rgba(0,0,0,.75);
+      display:none; align-items:center; justify-content:center;
+      z-index: 9998; padding: 16px;
+    }
+    .modal-overlay.active{ display:flex; }
+    .thumb{ width:64px; height:64px; border-radius:14px; object-fit:cover; border:1px solid #2c2c2c; background:#0f0f0f; }
+    .pill{ padding:6px 10px; border-radius:999px; font-weight:900; font-size:12px; border:1px solid #2c2c2c; background:#0f0f0f; color:#fde68a; }
   </style>
 </head>
 
@@ -60,72 +71,360 @@
   <div id="app" class="min-h-screen hidden">
     <!-- Topbar -->
     <header class="sticky top-0 z-50 backdrop-blur bg-black/70 border-b border-neutral-800">
-      <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-        <div>
-          <h1 class="text-2xl md:text-3xl font-bold title" style="color:#fde68a;">Painel do Restaurante</h1>
-          <p class="text-sm muted">Pedidos em tempo real (Firebase)</p>
+      <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-3">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          <div>
+            <h1 class="text-2xl md:text-3xl font-bold title" style="color:#fde68a;">Painel do Restaurante</h1>
+            <p class="text-sm muted">Pedidos em tempo real + Produtos + Dashboard (Firebase)</p>
+          </div>
+
+          <div class="flex flex-wrap gap-2">
+            <button id="btn-refresh" class="btn btn-dark">🔄 Atualizar</button>
+            <button id="btn-logout" class="btn btn-red">Sair</button>
+          </div>
         </div>
 
+        <!-- Tabs -->
         <div class="flex flex-wrap gap-2">
-          <button id="btn-refresh" class="btn btn-dark">🔄 Atualizar</button>
-          <button id="btn-logout" class="btn btn-red">Sair</button>
+          <button class="tab-btn active" data-tab="tab-orders">🧾 Pedidos</button>
+          <button class="tab-btn" data-tab="tab-products">🍽️ Produtos</button>
+          <button class="tab-btn" data-tab="tab-dashboard">📊 Dashboard</button>
         </div>
       </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
-      <!-- Left: Orders -->
-      <section class="lg:col-span-8 space-y-6">
-        <!-- Filters -->
-        <div class="card p-5">
-          <div class="flex flex-col md:flex-row md:items-end gap-4">
-            <div class="flex-1">
-              <label class="text-sm font-semibold" style="color:#fde68a;">Buscar (nome / telefone / item)</label>
-              <input id="search" class="input mt-2" placeholder="Ex: João, 1199..., Smash..." />
+    <main class="max-w-7xl mx-auto px-4 py-6">
+
+      <!-- =========================
+           TAB: ORDERS (SEU ORIGINAL)
+           ========================= -->
+      <section id="tab-orders" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Left: Orders -->
+        <section class="lg:col-span-8 space-y-6">
+          <!-- Filters -->
+          <div class="card p-5">
+            <div class="flex flex-col md:flex-row md:items-end gap-4">
+              <div class="flex-1">
+                <label class="text-sm font-semibold" style="color:#fde68a;">Buscar (nome / telefone / item)</label>
+                <input id="search" class="input mt-2" placeholder="Ex: João, 1199..., Smash..." />
+              </div>
+
+              <div class="w-full md:w-56">
+                <label class="text-sm font-semibold" style="color:#fde68a;">Status</label>
+                <select id="filter-status" class="input mt-2">
+                  <option value="all">Todos</option>
+                  <option value="new">Novo</option>
+                  <option value="preparing">Preparando</option>
+                  <option value="out_for_delivery">Saiu p/ entrega</option>
+                  <option value="done">Feito</option>
+                  <option value="cancelled">Cancelado</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Orders list -->
+          <div class="card p-5">
+            <div class="flex items-center justify-between gap-3">
+              <h2 class="text-xl font-bold title" style="color:#fde68a;">Fila de Pedidos</h2>
+              <span id="orders-count" class="badge badge-new">🧾 0 pedido(s)</span>
             </div>
 
-            <div class="w-full md:w-56">
-              <label class="text-sm font-semibold" style="color:#fde68a;">Status</label>
-              <select id="filter-status" class="input mt-2">
-                <option value="all">Todos</option>
-                <option value="new">Novo</option>
-                <option value="preparing">Preparando</option>
-                <option value="out_for_delivery">Saiu p/ entrega</option>
-                <option value="done">Feito</option>
-                <option value="cancelled">Cancelado</option>
-              </select>
+            <div id="orders-empty" class="mt-6 p-6 rounded-xl bg-neutral-950 border border-neutral-800 text-center hidden">
+              <p class="text-lg font-bold" style="color:#fde68a;">Nenhum pedido ainda</p>
+              <p class="text-sm muted mt-1">Quando o cliente enviar, ele aparece aqui.</p>
             </div>
-          </div>
-        </div>
 
-        <!-- Orders list -->
-        <div class="card p-5">
-          <div class="flex items-center justify-between gap-3">
-            <h2 class="text-xl font-bold title" style="color:#fde68a;">Fila de Pedidos</h2>
-            <span id="orders-count" class="badge badge-new">🧾 0 pedido(s)</span>
+            <div id="orders-list" class="mt-5 space-y-4"></div>
+          </div>
+        </section>
+
+        <!-- Right: Quick + Mini Metrics -->
+        <section class="lg:col-span-4 space-y-6">
+          <div class="card p-5">
+            <h2 class="text-xl font-bold title" style="color:#fde68a;">Ações rápidas</h2>
+            <p class="text-sm muted mt-2">Dica: clique em “Abrir WhatsApp” em um pedido para responder rápido.</p>
+            <div class="divider my-5"></div>
+            <p class="text-xs muted">Obs.: WhatsApp oficial (API) precisa de backend para token. Aqui abrimos o WhatsApp Web/App com a mensagem pronta.</p>
           </div>
 
-          <div id="orders-empty" class="mt-6 p-6 rounded-xl bg-neutral-950 border border-neutral-800 text-center hidden">
-            <p class="text-lg font-bold" style="color:#fde68a;">Nenhum pedido ainda</p>
-            <p class="text-sm muted mt-1">Quando o cliente enviar, ele aparece aqui.</p>
-          </div>
+          <div class="card p-5">
+            <h2 class="text-xl font-bold title" style="color:#fde68a;">Resumo rápido</h2>
+            <div class="divider my-4"></div>
 
-          <div id="orders-list" class="mt-5 space-y-4"></div>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="p-4 rounded-xl bg-neutral-950 border border-neutral-800">
+                <p class="text-xs muted">Total de pedidos</p>
+                <p id="m-total" class="text-2xl font-extrabold" style="color:#fde68a;">0</p>
+              </div>
+              <div class="p-4 rounded-xl bg-neutral-950 border border-neutral-800">
+                <p class="text-xs muted">Faturamento (sem cancelados)</p>
+                <p id="m-revenue" class="text-2xl font-extrabold" style="color:#d97706;">R$ 0,00</p>
+              </div>
+              <div class="p-4 rounded-xl bg-neutral-950 border border-neutral-800">
+                <p class="text-xs muted">Novos</p>
+                <p id="m-new" class="text-2xl font-extrabold" style="color:#fde68a;">0</p>
+              </div>
+              <div class="p-4 rounded-xl bg-neutral-950 border border-neutral-800">
+                <p class="text-xs muted">Cancelados</p>
+                <p id="m-cancel" class="text-2xl font-extrabold" style="color:#ef4444;">0</p>
+              </div>
+            </div>
+
+            <div class="divider my-4"></div>
+            <p class="text-xs muted">Para ver mais métricas e top produtos, abra a aba “Dashboard”.</p>
+          </div>
+        </section>
+      </section>
+
+      <!-- =========================
+           TAB: PRODUCTS (CRUD)
+           ========================= -->
+      <section id="tab-products" class="hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <!-- Left: products list -->
+          <section class="lg:col-span-8 space-y-6">
+            <div class="card p-5">
+              <div class="flex flex-col md:flex-row md:items-end gap-4">
+                <div class="flex-1">
+                  <label class="text-sm font-semibold" style="color:#fde68a;">Buscar produto</label>
+                  <input id="prod-search" class="input mt-2" placeholder="Ex: Pizza, Smash, Suco..." />
+                </div>
+
+                <div class="w-full md:w-56">
+                  <label class="text-sm font-semibold" style="color:#fde68a;">Categoria</label>
+                  <select id="prod-filter-category" class="input mt-2">
+                    <option value="all">Todas</option>
+                    <option value="Lanches">Lanches</option>
+                    <option value="Pizzas">Pizzas</option>
+                    <option value="Bebidas">Bebidas</option>
+                    <option value="Sobremesas">Sobremesas</option>
+                  </select>
+                </div>
+
+                <button id="btn-open-new" class="btn btn-primary w-full md:w-auto">➕ Novo produto</button>
+              </div>
+            </div>
+
+            <div class="card p-5">
+              <div class="flex items-center justify-between gap-3">
+                <h2 class="text-xl font-bold title" style="color:#fde68a;">Produtos do Cardápio</h2>
+                <span id="products-count" class="badge badge-new">🍽️ 0 produto(s)</span>
+              </div>
+
+              <div id="products-empty" class="mt-6 p-6 rounded-xl bg-neutral-950 border border-neutral-800 text-center hidden">
+                <p class="text-lg font-bold" style="color:#fde68a;">Nenhum produto cadastrado</p>
+                <p class="text-sm muted mt-1">Clique em “Novo produto” para criar.</p>
+              </div>
+
+              <div id="products-list" class="mt-5 space-y-4"></div>
+            </div>
+          </section>
+
+          <!-- Right: tips -->
+          <section class="lg:col-span-4 space-y-6">
+            <div class="card p-5">
+              <h2 class="text-xl font-bold title" style="color:#fde68a;">Fotos do produto</h2>
+              <p class="text-sm muted mt-2">
+                Você pode:
+                <br>• Colar uma URL de imagem (ImageKit, Imgur, etc.)
+                <br>• Ou fazer upload no Firebase Storage (se estiver ativado).
+              </p>
+              <div class="divider my-5"></div>
+              <p class="text-xs muted">
+                Importante: para o site (index.html) mostrar os produtos do Firestore automaticamente,
+                você precisa alterar o index para “ler” a coleção <b>products</b>.
+              </p>
+            </div>
+
+            <div class="card p-5">
+              <h2 class="text-xl font-bold title" style="color:#fde68a;">Coleções</h2>
+              <div class="divider my-4"></div>
+              <p class="text-sm muted">
+                • orders (pedidos)
+                <br>• products (cardápio)
+              </p>
+              <p class="text-xs muted mt-3">
+                Se algo não aparecer, normalmente é regra do Firestore bloqueando (rules).
+              </p>
+            </div>
+          </section>
         </div>
       </section>
 
-      <!-- Right: Quick -->
-      <section class="lg:col-span-4 space-y-6">
-        <div class="card p-5">
-          <h2 class="text-xl font-bold title" style="color:#fde68a;">Ações rápidas</h2>
-          <p class="text-sm muted mt-2">
-            Dica: clique em “Abrir WhatsApp” em um pedido para responder rápido.
-          </p>
-          <div class="divider my-5"></div>
-          <p class="text-xs muted">Obs.: WhatsApp oficial (API) precisa de backend para token. Aqui abrimos o WhatsApp Web/App com a mensagem pronta.</p>
+      <!-- =========================
+           TAB: DASHBOARD (MÉTRICAS)
+           ========================= -->
+      <section id="tab-dashboard" class="hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <!-- metrics -->
+          <section class="lg:col-span-8 space-y-6">
+            <div class="card p-5">
+              <h2 class="text-xl font-bold title" style="color:#fde68a;">Métricas de Vendas</h2>
+              <p class="text-sm muted mt-1">Atualiza em tempo real conforme os pedidos entram e mudam de status.</p>
+
+              <div class="divider my-5"></div>
+
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div class="p-4 rounded-xl bg-neutral-950 border border-neutral-800">
+                  <p class="text-xs muted">Total pedidos</p>
+                  <p id="d-total" class="text-3xl font-extrabold" style="color:#fde68a;">0</p>
+                </div>
+                <div class="p-4 rounded-xl bg-neutral-950 border border-neutral-800">
+                  <p class="text-xs muted">Faturamento (sem cancelados)</p>
+                  <p id="d-revenue" class="text-3xl font-extrabold" style="color:#d97706;">R$ 0,00</p>
+                </div>
+                <div class="p-4 rounded-xl bg-neutral-950 border border-neutral-800">
+                  <p class="text-xs muted">Ticket médio</p>
+                  <p id="d-ticket" class="text-3xl font-extrabold" style="color:#fde68a;">R$ 0,00</p>
+                </div>
+                <div class="p-4 rounded-xl bg-neutral-950 border border-neutral-800">
+                  <p class="text-xs muted">Concluídos</p>
+                  <p id="d-done" class="text-3xl font-extrabold" style="color:#a855f7;">0</p>
+                </div>
+              </div>
+
+              <div class="divider my-5"></div>
+
+              <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+                <div class="p-4 rounded-xl bg-neutral-950 border border-neutral-800">
+                  <p class="text-xs muted">Novos</p>
+                  <p id="d-new" class="text-2xl font-extrabold" style="color:#fde68a;">0</p>
+                </div>
+                <div class="p-4 rounded-xl bg-neutral-950 border border-neutral-800">
+                  <p class="text-xs muted">Preparando</p>
+                  <p id="d-prep" class="text-2xl font-extrabold" style="color:#3b82f6;">0</p>
+                </div>
+                <div class="p-4 rounded-xl bg-neutral-950 border border-neutral-800">
+                  <p class="text-xs muted">Saiu p/ entrega</p>
+                  <p id="d-out" class="text-2xl font-extrabold" style="color:#22c55e;">0</p>
+                </div>
+                <div class="p-4 rounded-xl bg-neutral-950 border border-neutral-800">
+                  <p class="text-xs muted">Feitos</p>
+                  <p id="d-done2" class="text-2xl font-extrabold" style="color:#a855f7;">0</p>
+                </div>
+                <div class="p-4 rounded-xl bg-neutral-950 border border-neutral-800">
+                  <p class="text-xs muted">Cancelados</p>
+                  <p id="d-cancel" class="text-2xl font-extrabold" style="color:#ef4444;">0</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="card p-5">
+              <div class="flex items-center justify-between gap-3">
+                <h2 class="text-xl font-bold title" style="color:#fde68a;">Top Itens Vendidos</h2>
+                <span class="pill">🔥 baseado nos pedidos</span>
+              </div>
+              <div class="divider my-4"></div>
+              <div id="top-items" class="space-y-3"></div>
+              <p class="text-xs muted mt-4">Dica: se quiser “por período” (dia/semana/mês), dá para evoluir depois.</p>
+            </div>
+          </section>
+
+          <!-- right -->
+          <section class="lg:col-span-4 space-y-6">
+            <div class="card p-5">
+              <h2 class="text-xl font-bold title" style="color:#fde68a;">Saúde do Negócio</h2>
+              <div class="divider my-4"></div>
+
+              <div class="p-4 rounded-xl bg-neutral-950 border border-neutral-800">
+                <p class="text-xs muted">Taxa de cancelamento</p>
+                <p id="d-cancel-rate" class="text-2xl font-extrabold" style="color:#ef4444;">0%</p>
+              </div>
+
+              <div class="p-4 rounded-xl bg-neutral-950 border border-neutral-800 mt-3">
+                <p class="text-xs muted">Taxa de conclusão</p>
+                <p id="d-done-rate" class="text-2xl font-extrabold" style="color:#a855f7;">0%</p>
+              </div>
+
+              <div class="divider my-5"></div>
+              <p class="text-xs muted">
+                Obs.: estas métricas são calculadas a partir do que está salvo no Firestore.
+              </p>
+            </div>
+
+            <div class="card p-5">
+              <h2 class="text-xl font-bold title" style="color:#fde68a;">Atalho</h2>
+              <div class="divider my-4"></div>
+              <button class="btn btn-primary w-full" id="go-products">🍽️ Gerenciar produtos</button>
+              <button class="btn btn-dark w-full mt-2" id="go-orders">🧾 Voltar para pedidos</button>
+            </div>
+          </section>
         </div>
       </section>
+
     </main>
+  </div>
+
+  <!-- =========================
+       MODAL: NEW/EDIT PRODUCT
+       ========================= -->
+  <div id="product-modal" class="modal-overlay">
+    <div class="card w-full max-w-2xl p-6">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <h2 id="prod-modal-title" class="text-2xl font-extrabold title" style="color:#fde68a;">🍽️ Novo produto</h2>
+          <p class="text-sm muted mt-1">Crie, edite, coloque foto e organize no cardápio.</p>
+        </div>
+        <button id="btn-close-prod-modal" class="btn btn-dark">✖</button>
+      </div>
+
+      <div class="divider my-5"></div>
+
+      <form id="product-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input type="hidden" id="prod-id" value="" />
+
+        <div class="md:col-span-2">
+          <label class="text-sm font-semibold" style="color:#fde68a;">Nome</label>
+          <input id="prod-name" class="input mt-2" placeholder="Ex: Smash Burger Especial" required />
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="text-sm font-semibold" style="color:#fde68a;">Descrição</label>
+          <textarea id="prod-desc" class="input mt-2" rows="3" placeholder="Ex: 2x smash 90g, cheddar, bacon..." required></textarea>
+        </div>
+
+        <div>
+          <label class="text-sm font-semibold" style="color:#fde68a;">Preço (R$)</label>
+          <input id="prod-price" class="input mt-2" type="number" step="0.01" min="0" placeholder="32.90" required />
+        </div>
+
+        <div>
+          <label class="text-sm font-semibold" style="color:#fde68a;">Categoria</label>
+          <select id="prod-category" class="input mt-2" required>
+            <option value="Lanches">Lanches</option>
+            <option value="Pizzas">Pizzas</option>
+            <option value="Bebidas">Bebidas</option>
+            <option value="Sobremesas">Sobremesas</option>
+          </select>
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="text-sm font-semibold" style="color:#fde68a;">Emoji (opcional)</label>
+          <input id="prod-emoji" class="input mt-2" placeholder="🍔 🍕 🥤 🍰" maxlength="4" />
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="text-sm font-semibold" style="color:#fde68a;">URL da imagem (opcional)</label>
+          <input id="prod-image-url" class="input mt-2" placeholder="https://..." />
+          <p class="text-xs muted mt-2">Se você fizer upload abaixo, a URL será preenchida automaticamente (se Storage estiver ativo).</p>
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="text-sm font-semibold" style="color:#fde68a;">Upload de imagem (opcional)</label>
+          <input id="prod-image-file" class="input mt-2" type="file" accept="image/*" />
+          <button id="btn-upload-image" type="button" class="btn btn-purple w-full mt-2">⬆️ Enviar imagem para o Storage</button>
+          <p id="upload-hint" class="text-xs muted mt-2">Se o upload falhar, use uma URL de imagem.</p>
+        </div>
+
+        <div class="md:col-span-2 flex flex-col md:flex-row gap-2 mt-2">
+          <button id="btn-save-product" type="submit" class="btn btn-primary w-full">Salvar</button>
+          <button id="btn-delete-product" type="button" class="btn btn-red w-full hidden">Excluir</button>
+        </div>
+
+        <p id="prod-form-error" class="md:col-span-2 text-sm hidden" style="color:#ef4444;">Erro ao salvar. Verifique regras/Storage e tente novamente.</p>
+      </form>
+    </div>
   </div>
 
   <script type="module">
@@ -147,10 +446,18 @@
       onSnapshot,
       doc,
       updateDoc,
+      addDoc,
+      deleteDoc,
       serverTimestamp
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import {
+      getStorage,
+      ref,
+      uploadBytes,
+      getDownloadURL
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-    // ✅ SEU firebaseConfig (USAR O MESMO DO INDEX.HTML)
+    // ✅ SEU firebaseConfig
     const firebaseConfig = {
       apiKey: "AIzaSyBqFZJ5wg3VIJlJtA4DgFS499_9rXu-zAk",
       authDomain: "cardapio-digital-adc3d.firebaseapp.com",
@@ -163,6 +470,9 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+
+    // Storage (opcional, mas habilita upload se você ativar no Firebase)
+    const storage = getStorage(app);
 
     // ==============================
     // UI HELPERS
@@ -217,7 +527,6 @@ Total: ${moneyBR(order.total || 0)}
 
 Responda aqui para confirmar.`;
 
-      // abre para o cliente (se tiver telefone)
       const phone = normalizePhoneBR(order.customer?.phone || "");
       return phone
         ? `https://wa.me/${phone}?text=${encodeURIComponent(text)}`
@@ -225,14 +534,32 @@ Responda aqui para confirmar.`;
     }
 
     // ==============================
+    // TABS
+    // ==============================
+    const tabButtons = Array.from(document.querySelectorAll(".tab-btn"));
+    function openTab(tabId){
+      ["tab-orders","tab-products","tab-dashboard"].forEach(id=>{
+        const el = $(id);
+        if(!el) return;
+        el.classList.toggle("hidden", id !== tabId);
+      });
+      tabButtons.forEach(b=>{
+        b.classList.toggle("active", b.getAttribute("data-tab") === tabId);
+      });
+    }
+    tabButtons.forEach(b=>{
+      b.addEventListener("click", ()=> openTab(b.getAttribute("data-tab")));
+    });
+    $("go-products")?.addEventListener("click", ()=> openTab("tab-products"));
+    $("go-orders")?.addEventListener("click", ()=> openTab("tab-orders"));
+
+    // ==============================
     // AUTH FLOW
     // ==============================
     async function doLogin(){
       $("login-error").classList.add("hidden");
-
       const email = ($("login-email").value || "").trim();
       const pass = ($("login-pass").value || "").trim();
-
       try {
         await signInWithEmailAndPassword(auth, email, pass);
       } catch (e) {
@@ -241,13 +568,8 @@ Responda aqui para confirmar.`;
     }
 
     $("login-btn").addEventListener("click", doLogin);
-    $("login-pass").addEventListener("keydown", (e) => {
-      if(e.key === "Enter") doLogin();
-    });
-
-    $("btn-logout").addEventListener("click", async () => {
-      await signOut(auth);
-    });
+    $("login-pass").addEventListener("keydown", (e) => { if(e.key === "Enter") doLogin(); });
+    $("btn-logout").addEventListener("click", async () => { await signOut(auth); });
 
     // ==============================
     // ORDERS (REALTIME)
@@ -255,12 +577,11 @@ Responda aqui para confirmar.`;
     let unsubOrders = null;
     let liveOrders = [];
 
-    function applyFilters(orders){
+    function applyFiltersOrders(orders){
       const q = ($("search").value || "").toLowerCase().trim();
       const st = $("filter-status").value;
 
       let list = [...orders];
-
       if(st !== "all") list = list.filter(o => o.status === st);
 
       if(q){
@@ -273,7 +594,6 @@ Responda aqui para confirmar.`;
           );
         });
       }
-
       return list;
     }
 
@@ -283,13 +603,12 @@ Responda aqui para confirmar.`;
     }
 
     function renderOrders(){
-      const list = applyFilters(liveOrders);
+      const list = applyFiltersOrders(liveOrders);
 
       $("orders-count").textContent = `🧾 ${list.length} pedido(s)`;
       $("orders-empty").classList.toggle("hidden", list.length !== 0);
 
       $("orders-list").innerHTML = list.map(o => {
-        // createdAt pode vir como Timestamp do Firestore
         let createdDate = new Date();
         if (o.createdAt?.toDate) createdDate = o.createdAt.toDate();
         else if (typeof o.createdAt === "string") createdDate = new Date(o.createdAt);
@@ -303,7 +622,6 @@ Responda aqui para confirmar.`;
         ).join("");
 
         const waLink = buildWhatsAppLink(o);
-
         const shortId = (o.id || "").slice(-6).toUpperCase() || "------";
 
         return `
@@ -351,7 +669,6 @@ Responda aqui para confirmar.`;
         `;
       }).join("");
 
-      // bind actions
       $("orders-list").querySelectorAll("button[data-act]").forEach(btn => {
         btn.addEventListener("click", async () => {
           const id = btn.getAttribute("data-id");
@@ -367,22 +684,325 @@ Responda aqui para confirmar.`;
       });
     }
 
-    function startRealtime(){
+    function startOrdersRealtime(){
       if(unsubOrders) unsubOrders();
-
-      // ⚠️ precisa ter createdAt no pedido (serverTimestamp no index.html)
       const qy = query(collection(db, "orders"), orderBy("createdAt", "desc"));
       unsubOrders = onSnapshot(qy, (snap) => {
         liveOrders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         renderOrders();
-      }, () => {
-        // se der erro por permissão, vai continuar no login; regras provavelmente estão bloqueando
+        updateMetricsFromOrders(liveOrders);
+      }, () => {});
+    }
+
+    $("btn-refresh").addEventListener("click", () => {
+      renderOrders();
+      renderProducts();
+      updateMetricsFromOrders(liveOrders);
+    });
+    $("search").addEventListener("input", () => renderOrders());
+    $("filter-status").addEventListener("change", () => renderOrders());
+
+    // ==============================
+    // METRICS (DASHBOARD)
+    // ==============================
+    function updateText(id, val){
+      const el = $(id);
+      if(el) el.textContent = val;
+    }
+
+    function updateMetricsFromOrders(orders){
+      const total = orders.length;
+      const count = {
+        new: 0,
+        preparing: 0,
+        out_for_delivery: 0,
+        done: 0,
+        cancelled: 0
+      };
+
+      let revenue = 0;
+      let doneRevenue = 0;
+
+      const itemAgg = new Map(); // name -> {qty, total}
+
+      orders.forEach(o => {
+        const st = o.status || "new";
+        if(count[st] != null) count[st]++;
+
+        const orderTotal = Number(o.total || 0);
+        if(st !== "cancelled") revenue += orderTotal;
+        if(st === "done") doneRevenue += orderTotal;
+
+        (o.items || []).forEach(it => {
+          const key = String(it.name || "").trim();
+          if(!key) return;
+          const qty = Number(it.qty || 0);
+          const lineTotal = Number(it.price || 0) * qty;
+          const prev = itemAgg.get(key) || { qty: 0, total: 0 };
+          prev.qty += qty;
+          prev.total += lineTotal;
+          itemAgg.set(key, prev);
+        });
+      });
+
+      // Quick (Orders tab)
+      updateText("m-total", String(total));
+      updateText("m-new", String(count.new));
+      updateText("m-cancel", String(count.cancelled));
+      updateText("m-revenue", moneyBR(revenue));
+
+      // Dashboard
+      updateText("d-total", String(total));
+      updateText("d-revenue", moneyBR(revenue));
+      updateText("d-new", String(count.new));
+      updateText("d-prep", String(count.preparing));
+      updateText("d-out", String(count.out_for_delivery));
+      updateText("d-done", String(count.done));
+      updateText("d-done2", String(count.done));
+      updateText("d-cancel", String(count.cancelled));
+
+      const nonCancelledCount = total - count.cancelled;
+      const ticket = nonCancelledCount > 0 ? (revenue / nonCancelledCount) : 0;
+      updateText("d-ticket", moneyBR(ticket));
+
+      const cancelRate = total > 0 ? (count.cancelled / total) * 100 : 0;
+      const doneRate = total > 0 ? (count.done / total) * 100 : 0;
+      updateText("d-cancel-rate", `${cancelRate.toFixed(1)}%`);
+      updateText("d-done-rate", `${doneRate.toFixed(1)}%`);
+
+      // Top items
+      const top = Array.from(itemAgg.entries())
+        .map(([name, v]) => ({ name, qty: v.qty, total: v.total }))
+        .sort((a,b)=> b.qty - a.qty)
+        .slice(0, 10);
+
+      const topEl = $("top-items");
+      if(topEl){
+        if(top.length === 0){
+          topEl.innerHTML = `<div class="p-4 rounded-xl bg-neutral-950 border border-neutral-800">
+            <p class="text-sm muted">Sem itens ainda (faça um pedido para gerar estatística).</p>
+          </div>`;
+        } else {
+          topEl.innerHTML = top.map((t, idx)=>`
+            <div class="p-4 rounded-xl bg-neutral-950 border border-neutral-800 flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center font-extrabold"
+                     style="background: rgba(217,119,6,.18); border:1px solid rgba(217,119,6,.35); color:#fde68a;">
+                  ${idx+1}
+                </div>
+                <div>
+                  <p class="font-extrabold" style="color:#fef3c7;">${escapeHtml(t.name)}</p>
+                  <p class="text-xs muted">${t.qty} unidade(s) • ${moneyBR(t.total)}</p>
+                </div>
+              </div>
+              <span class="pill">🔥 ${t.qty}</span>
+            </div>
+          `).join("");
+        }
+      }
+    }
+
+    // ==============================
+    // PRODUCTS (CRUD - Firestore)
+    // ==============================
+    let unsubProducts = null;
+    let liveProducts = [];
+
+    function openProductModal(mode, product){
+      $("prod-form-error").classList.add("hidden");
+      $("product-modal").classList.add("active");
+
+      if(mode === "edit"){
+        $("prod-modal-title").textContent = "✏️ Editar produto";
+        $("prod-id").value = product.id || "";
+        $("prod-name").value = product.name || "";
+        $("prod-desc").value = product.description || "";
+        $("prod-price").value = String(product.price ?? "");
+        $("prod-category").value = product.category || "Lanches";
+        $("prod-emoji").value = product.emoji || "";
+        $("prod-image-url").value = product.imageUrl || "";
+        $("btn-delete-product").classList.remove("hidden");
+      } else {
+        $("prod-modal-title").textContent = "🍽️ Novo produto";
+        $("prod-id").value = "";
+        $("product-form").reset();
+        $("prod-category").value = "Lanches";
+        $("btn-delete-product").classList.add("hidden");
+      }
+    }
+
+    function closeProductModal(){
+      $("product-modal").classList.remove("active");
+      $("prod-image-file").value = "";
+    }
+
+    $("btn-open-new").addEventListener("click", ()=> openProductModal("new"));
+    $("btn-close-prod-modal").addEventListener("click", closeProductModal);
+    $("product-modal").addEventListener("click", (e)=>{ if(e.target === $("product-modal")) closeProductModal(); });
+
+    function applyProductFilters(list){
+      const q = ($("prod-search").value || "").toLowerCase().trim();
+      const cat = $("prod-filter-category").value;
+
+      let out = [...list];
+      if(cat !== "all") out = out.filter(p => (p.category || "") === cat);
+
+      if(q){
+        out = out.filter(p => {
+          const text = `${p.name||""} ${p.description||""} ${p.category||""}`.toLowerCase();
+          return text.includes(q);
+        });
+      }
+      return out;
+    }
+
+    function renderProducts(){
+      const filtered = applyProductFilters(liveProducts);
+
+      $("products-count").textContent = `🍽️ ${filtered.length} produto(s)`;
+      $("products-empty").classList.toggle("hidden", filtered.length !== 0);
+
+      const box = $("products-list");
+      if(!box) return;
+
+      box.innerHTML = filtered.map(p=>{
+        const img = p.imageUrl ? escapeHtml(p.imageUrl) : "";
+        const emoji = p.emoji ? escapeHtml(p.emoji) : "🍽️";
+
+        return `
+          <div class="p-4 rounded-xl bg-neutral-950 border border-neutral-800">
+            <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+              <div class="flex items-start gap-4">
+                <img class="thumb" src="${img || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect width='64' height='64' fill='%230f0f0f'/%3E%3Ctext x='50%25' y='52%25' dominant-baseline='middle' text-anchor='middle' fill='%23fde68a' font-size='18'%3E%F0%9F%8D%BD%EF%B8%8F%3C/text%3E%3C/svg%3E"}" alt="Foto produto" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2264%22 height=%2264%22%3E%3Crect width=%2264%22 height=%2264%22 fill=%220f0f0f%22/%3E%3Ctext x=%2250%25%22 y=%2252%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22fde68a%22 font-size=%2218%22%3E%F0%9F%8D%BD%EF%B8%8F%3C/text%3E%3C/svg%3E';" />
+                <div class="flex-1">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="pill">${emoji}</span>
+                    <p class="font-extrabold" style="color:#fef3c7;">${escapeHtml(p.name || "Sem nome")}</p>
+                    <span class="pill">${escapeHtml(p.category || "—")}</span>
+                  </div>
+                  <p class="text-sm muted mt-2">${escapeHtml(p.description || "")}</p>
+                  <p class="text-lg font-extrabold mt-3" style="color:#d97706;">${moneyBR(p.price || 0)}</p>
+                </div>
+              </div>
+
+              <div class="min-w-[240px]">
+                <button class="btn btn-primary w-full" data-prod-act="edit" data-prod-id="${p.id}">✏️ Editar</button>
+                <button class="btn btn-red w-full mt-2" data-prod-act="del" data-prod-id="${p.id}">🗑️ Excluir</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      box.querySelectorAll("[data-prod-act='edit']").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const id = btn.getAttribute("data-prod-id");
+          const p = liveProducts.find(x=> x.id === id);
+          if(p) openProductModal("edit", p);
+        });
+      });
+
+      box.querySelectorAll("[data-prod-act='del']").forEach(btn=>{
+        btn.addEventListener("click", async ()=>{
+          const id = btn.getAttribute("data-prod-id");
+          const p = liveProducts.find(x=> x.id === id);
+          const ok = confirm(`Excluir o produto "${p?.name || "Sem nome"}"?`);
+          if(!ok) return;
+          try{
+            await deleteDoc(doc(db, "products", id));
+          }catch(e){
+            alert("Não foi possível excluir. Verifique regras do Firestore.");
+          }
+        });
       });
     }
 
-    $("btn-refresh").addEventListener("click", () => renderOrders());
-    $("search").addEventListener("input", () => renderOrders());
-    $("filter-status").addEventListener("change", () => renderOrders());
+    function startProductsRealtime(){
+      if(unsubProducts) unsubProducts();
+      const qy = query(collection(db, "products"), orderBy("createdAt", "desc"));
+      unsubProducts = onSnapshot(qy, (snap)=>{
+        liveProducts = snap.docs.map(d=>({ id: d.id, ...d.data() }));
+        renderProducts();
+      }, ()=>{});
+    }
+
+    $("prod-search").addEventListener("input", renderProducts);
+    $("prod-filter-category").addEventListener("change", renderProducts);
+
+    // Upload image -> Storage -> set URL
+    $("btn-upload-image").addEventListener("click", async ()=>{
+      $("prod-form-error").classList.add("hidden");
+      const file = $("prod-image-file").files?.[0];
+      if(!file){
+        alert("Selecione uma imagem primeiro.");
+        return;
+      }
+
+      try{
+        const safeName = file.name.replace(/[^\w.\-]+/g, "_");
+        const path = `products/${Date.now()}_${safeName}`;
+        const storageRef = ref(storage, path);
+
+        $("btn-upload-image").textContent = "Enviando...";
+        $("btn-upload-image").disabled = true;
+
+        await uploadBytes(storageRef, file);
+        const url = await getDownloadURL(storageRef);
+
+        $("prod-image-url").value = url;
+        $("upload-hint").textContent = "✅ Upload concluído! URL preenchida.";
+      }catch(e){
+        $("upload-hint").textContent = "⚠️ Upload falhou. Use uma URL de imagem (ou ative o Storage/regras).";
+      }finally{
+        $("btn-upload-image").textContent = "⬆️ Enviar imagem para o Storage";
+        $("btn-upload-image").disabled = false;
+      }
+    });
+
+    // Save product (create/update)
+    $("product-form").addEventListener("submit", async (e)=>{
+      e.preventDefault();
+      $("prod-form-error").classList.add("hidden");
+
+      const id = ($("prod-id").value || "").trim();
+      const payload = {
+        name: ($("prod-name").value || "").trim(),
+        description: ($("prod-desc").value || "").trim(),
+        price: Number($("prod-price").value || 0),
+        category: ($("prod-category").value || "Lanches"),
+        emoji: ($("prod-emoji").value || "").trim(),
+        imageUrl: ($("prod-image-url").value || "").trim(),
+        updatedAt: serverTimestamp()
+      };
+
+      try{
+        if(id){
+          await updateDoc(doc(db, "products", id), payload);
+        } else {
+          await addDoc(collection(db, "products"), {
+            ...payload,
+            createdAt: serverTimestamp()
+          });
+        }
+        closeProductModal();
+      }catch(err){
+        $("prod-form-error").classList.remove("hidden");
+      }
+    });
+
+    // Delete inside modal
+    $("btn-delete-product").addEventListener("click", async ()=>{
+      const id = ($("prod-id").value || "").trim();
+      if(!id) return;
+      const ok = confirm("Excluir este produto?");
+      if(!ok) return;
+      try{
+        await deleteDoc(doc(db, "products", id));
+        closeProductModal();
+      }catch(e){
+        $("prod-form-error").classList.remove("hidden");
+      }
+    });
 
     // ==============================
     // AUTH STATE
@@ -391,18 +1011,48 @@ Responda aqui para confirmar.`;
       if(user){
         $("login-overlay").classList.add("hidden");
         $("app").classList.remove("hidden");
-        startRealtime();
+
+        // default tab
+        openTab("tab-orders");
+
+        startOrdersRealtime();
+        startProductsRealtime();
       } else {
         $("app").classList.add("hidden");
         $("login-overlay").classList.remove("hidden");
+
         if(unsubOrders) unsubOrders();
         unsubOrders = null;
         liveOrders = [];
         $("orders-list").innerHTML = "";
         $("orders-count").textContent = "🧾 0 pedido(s)";
         $("orders-empty").classList.add("hidden");
+
+        if(unsubProducts) unsubProducts();
+        unsubProducts = null;
+        liveProducts = [];
+        $("products-list").innerHTML = "";
+        $("products-count").textContent = "🍽️ 0 produto(s)";
+        $("products-empty").classList.add("hidden");
+
+        updateMetricsFromOrders([]);
       }
     });
   </script>
+
+  <!-- ✅ IMPORTANTE (REGRAS) -->
+  <!--
+    Para o admin conseguir LER/ESCREVER em products, suas rules precisam permitir:
+
+    rules_version = '2';
+    service cloud.firestore {
+      match /databases/{database}/documents {
+        match /orders/{id} { allow read, write: if request.auth != null; }
+        match /products/{id} { allow read, write: if request.auth != null; }
+      }
+    }
+
+    (Cole em: Firestore Database > Regras > Publish)
+  -->
 </body>
 </html>
