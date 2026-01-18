@@ -64,12 +64,6 @@
   </div>
 </div>
 
-<button id="submit-auth" class="btn btn-primary w-full mt-3">Entrar</button>
-<p id="login-error" class="text-sm mt-2 hidden" style="color:#ef4444;">Email ou senha inválidos.</p>
-<p id="register-error" class="text-sm mt-2 hidden" style="color:#ef4444;">Erro ao criar conta.</p>
-
-        <button id="login-btn" class="btn btn-primary w-full mt-2">Entrar</button>
-        <p id="login-error" class="text-sm mt-2 hidden" style="color:#ef4444;">Email ou senha inválidos.</p>
       </div>
     </div>
   </div>
@@ -323,27 +317,13 @@
     // ==============================
     // FIREBASE (CDN - modular v10.12.2)
     // ==============================
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import {
-      getAuth,
-      signInWithEmailAndPassword,
-      onAuthStateChanged,
-      signOut
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import {
-      getFirestore,
-      collection,
-      query,
-      orderBy,
-      onSnapshot,
-      doc,
-      updateDoc,
-      serverTimestamp,
-      addDoc,
-      deleteDoc,
-      getDoc,
-      setDoc
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+   import {
+  getAuth,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut,
+  createUserWithEmailAndPassword
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
     // ✅ SEU firebaseConfig
     const firebaseConfig = {
@@ -358,6 +338,97 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+let AUTH_MODE = "login"; // "login" | "register"
+
+function randomId(prefix="rest_"){
+  return prefix + Math.random().toString(36).slice(2,10) + Math.random().toString(36).slice(2,6);
+}
+
+function showAuthMode(){
+  const isReg = AUTH_MODE === "register";
+  document.getElementById("register-extra").classList.toggle("hidden", !isReg);
+
+  document.getElementById("mode-login").classList.toggle("active", !isReg);
+  document.getElementById("mode-register").classList.toggle("active", isReg);
+
+  document.getElementById("submit-auth").textContent = isReg ? "Criar conta" : "Entrar";
+}
+
+document.getElementById("mode-login").onclick = () => { AUTH_MODE = "login"; showAuthMode(); };
+document.getElementById("mode-register").onclick = () => { AUTH_MODE = "register"; showAuthMode(); };
+showAuthMode();
+
+async function ensureRestaurantForUser(user, restaurantName){
+  // Cria um restaurante novo e associa o UID como owner
+  const restaurantId = randomId();
+  const restRef = doc(db, "restaurants", restaurantId);
+  const memberRef = doc(db, "restaurants", restaurantId, "members", user.uid);
+  const menuRef = doc(db, "restaurants", restaurantId, "settings", "menu");
+
+  await setDoc(restRef, {
+    name: restaurantName || "Meu Restaurante",
+    logoUrl: "",
+    hoursText: "Seg a Dom: 11h às 23h",
+    daysText: "Seg a Dom",
+    whatsappPhone: "",
+    createdAt: serverTimestamp(),
+    ownerUid: user.uid
+  });
+
+  await setDoc(memberRef, {
+    role: "owner",
+    createdAt: serverTimestamp()
+  });
+
+  await setDoc(menuRef, {
+    categoryTitles: {
+      Lanches: "Lanches",
+      Pizzas: "Pizzas",
+      Bebidas: "Bebidas",
+      Sobremesas: "Sobremesas"
+    },
+    updatedAt: serverTimestamp()
+  });
+
+  return restaurantId;
+}
+
+async function doAuth(){
+  document.getElementById("login-error").classList.add("hidden");
+  document.getElementById("register-error").classList.add("hidden");
+
+  const email = (document.getElementById("login-email").value || "").trim();
+  const pass = (document.getElementById("login-pass").value || "").trim();
+
+  try {
+    if(AUTH_MODE === "login"){
+      await signInWithEmailAndPassword(auth, email, pass);
+      return;
+    }
+
+    // register
+    const restaurantName = (document.getElementById("rest-name").value || "").trim();
+    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+
+    // cria restaurante + membership
+    const restaurantId = await ensureRestaurantForUser(cred.user, restaurantName);
+
+    // opcional: mostra pro usuário o link do cardápio
+    alert(`Conta criada!\n\nSeu ID do restaurante é: ${restaurantId}\n\nAbra o cardápio assim:\nindex.html?r=${restaurantId}`);
+  } catch (e) {
+    if(AUTH_MODE === "login"){
+      document.getElementById("login-error").classList.remove("hidden");
+    } else {
+      document.getElementById("register-error").textContent = "Erro ao criar conta: " + (e?.message || "desconhecido");
+      document.getElementById("register-error").classList.remove("hidden");
+    }
+  }
+}
+
+document.getElementById("submit-auth").addEventListener("click", doAuth);
+document.getElementById("login-pass").addEventListener("keydown", (e) => {
+  if(e.key === "Enter") doAuth();
+});
 
     const $ = (id) => document.getElementById(id);
 
@@ -763,6 +834,20 @@ Responda aqui para confirmar.`;
 
         // merge para não apagar outros campos
         await setDoc(SETTINGS_REF, payload, { merge: true });
+        import {
+  getFirestore,
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  doc,
+  updateDoc,
+  serverTimestamp,
+  addDoc,
+  deleteDoc,
+  setDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
         setCatMsg("✅ Títulos salvos! Agora o index do cliente precisa ler settings/menu.", true);
       } catch (e){
         setCatMsg("Erro ao salvar títulos. Verifique regras de /settings.", false);
