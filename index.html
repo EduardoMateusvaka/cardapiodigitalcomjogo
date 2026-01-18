@@ -149,40 +149,6 @@
       </div>
     </header>
 
-    <!-- Cardápio Dinâmico (Firestore) -->
-<section class="mb-8">
-  <div class="category-header flex items-center gap-3 mb-4 pb-2" style="border-bottom:2px solid #d97706;">
-    <span class="category-icon text-3xl">🍔</span>
-    <h2 class="text-2xl font-bold" style="color:#d97706;font-family:'Playfair Display',serif;">Lanches</h2>
-  </div>
-  <div id="products-Lanches" class="space-y-3"></div>
-</section>
-
-<section class="mb-8">
-  <div class="category-header flex items-center gap-3 mb-4 pb-2" style="border-bottom:2px solid #d97706;">
-    <span class="category-icon text-3xl">🍕</span>
-    <h2 class="text-2xl font-bold" style="color:#d97706;font-family:'Playfair Display',serif;">Pizzas</h2>
-  </div>
-  <div id="products-Pizzas" class="space-y-3"></div>
-</section>
-
-<section class="mb-8">
-  <div class="category-header flex items-center gap-3 mb-4 pb-2" style="border-bottom:2px solid #d97706;">
-    <span class="category-icon text-3xl">🥤</span>
-    <h2 class="text-2xl font-bold" style="color:#d97706;font-family:'Playfair Display',serif;">Bebidas</h2>
-  </div>
-  <div id="products-Bebidas" class="grid grid-cols-2 gap-3"></div>
-</section>
-
-<section class="mb-8">
-  <div class="category-header flex items-center gap-3 mb-4 pb-2" style="border-bottom:2px solid #d97706;">
-    <span class="category-icon text-3xl">🍰</span>
-    <h2 class="text-2xl font-bold" style="color:#d97706;font-family:'Playfair Display',serif;">Sobremesas</h2>
-  </div>
-  <div id="products-Sobremesas" class="space-y-3"></div>
-</section>
-
-
     <main class="px-4 py-6 max-w-2xl mx-auto" style="font-family:'Poppins',sans-serif;">
 
       <!-- GAME CTA -->
@@ -193,204 +159,44 @@
           🎮 Jogar (enquanto espera)
         </button>
         <p class="text-xs text-center mt-2" style="color:#9ca3af;">
-          Se o link do jogo bloquear o modo “dentro do site”, aparece botão pra abrir em nova aba.
+          Obs.: Subway Surfers geralmente bloqueia abrir dentro do site. Se bloquear, aparece botão pra abrir em nova aba.
         </p>
       </div>
 
-      <!-- Lanches -->
+      <!-- CARDÁPIO DINÂMICO -->
       <section class="mb-8">
         <div class="category-header flex items-center gap-3 mb-4 pb-2" style="border-bottom:2px solid #d97706;">
           <span class="category-icon text-3xl">🍔</span>
           <h2 class="text-2xl font-bold" style="color:#d97706;font-family:'Playfair Display',serif;">Lanches</h2>
         </div>
-
-        <div class="space-y-3">
-          <div class="menu-item rounded-xl p-4 relative"
-               onclick="addToCart('Smash Burger Especial', 32.90, '🍔')"
-               style="background:linear-gradient(135deg,#262626 0%,#1f1f1f 100%);border:1px solid #404040;">
-            <div class="badge absolute -top-2 -right-2 px-3 py-1 rounded-full text-xs font-bold"
-                 style="background:linear-gradient(135deg,#d97706 0%,#b45309 100%);color:#1a1a1a;">⭐ Mais Vendido</div>
-            <div class="flex justify-between items-start">
-              <div class="flex-1 pr-4">
-                <h3 class="font-semibold text-lg" style="color:#fef3c7;">Smash Burger Especial</h3>
-                <p class="text-sm mt-1 opacity-80" style="color:#d6d3d1;">Dois hambúrgueres smash 90g, cheddar, bacon, cebola caramelizada e molho especial.</p>
-                <p class="text-xs mt-2" style="color:#9ca3af;">Clique para adicionar ao carrinho</p>
-              </div>
-              <div class="text-right"><span class="text-2xl font-bold" style="color:#d97706;">R$ 32,90</span></div>
-            </div>
-          </div>
-
-          <div class="menu-item rounded-xl p-4"
-               onclick="addToCart('X-Bacon Gourmet', 28.90, '🥓')"
-               style="background:linear-gradient(135deg,#262626 0%,#1f1f1f 100%);border:1px solid #404040;">
-            <div class="flex justify-between items-start">
-              <div class="flex-1 pr-4">
-                <h3 class="font-semibold text-lg" style="color:#fef3c7;">X-Bacon Gourmet</h3>
-                <p class="text-sm mt-1 opacity-80" style="color:#d6d3d1;">Hambúrguer 180g, queijo prato, bacon, alface e maionese trufada.</p>
-                <p class="text-xs mt-2" style="color:#9ca3af;">Clique para adicionar ao carrinho</p>
-              </div>
-              <div class="text-right"><span class="text-2xl font-bold" style="color:#d97706;">R$ 28,90</span></div>
-            </div>
-          </div>
-
-          <div class="menu-item rounded-xl p-4 relative"
-               onclick="addToCart('X-Salada Clássico', 19.90, '🥬')"
-               style="background:linear-gradient(135deg,#262626 0%,#1f1f1f 100%);border:1px solid #b91c1c;">
-            <div class="badge absolute -top-2 -right-2 px-3 py-1 rounded-full text-xs font-bold"
-                 style="background:linear-gradient(135deg,#b91c1c 0%,#991b1b 100%);color:#fef3c7;">🏷️ Promoção</div>
-            <div class="flex justify-between items-start">
-              <div class="flex-1 pr-4">
-                <h3 class="font-semibold text-lg" style="color:#fef3c7;">X-Salada Clássico</h3>
-                <p class="text-sm mt-1 opacity-80" style="color:#d6d3d1;">Hambúrguer 150g, queijo, alface, tomate, cebola e molho rosé.</p>
-                <p class="text-xs mt-2" style="color:#9ca3af;">Clique para adicionar ao carrinho</p>
-              </div>
-              <div class="text-right"><span class="text-2xl font-bold" style="color:#d97706;">R$ 19,90</span></div>
-            </div>
-          </div>
-        </div>
+        <div id="products-Lanches" class="space-y-3"></div>
       </section>
 
-      <!-- Pizzas -->
       <section class="mb-8">
         <div class="category-header flex items-center gap-3 mb-4 pb-2" style="border-bottom:2px solid #d97706;">
           <span class="category-icon text-3xl">🍕</span>
           <h2 class="text-2xl font-bold" style="color:#d97706;font-family:'Playfair Display',serif;">Pizzas</h2>
         </div>
-
-        <div class="space-y-3">
-          <div class="menu-item rounded-xl p-4"
-               onclick="addToCart('Pepperoni Supreme', 49.90, '🍕')"
-               style="background:linear-gradient(135deg,#262626 0%,#1f1f1f 100%);border:1px solid #404040;">
-            <div class="flex justify-between items-start">
-              <div class="flex-1 pr-4">
-                <h3 class="font-semibold text-lg" style="color:#fef3c7;">Pepperoni Supreme</h3>
-                <p class="text-sm mt-1 opacity-80" style="color:#d6d3d1;">Mussarela premium, pepperoni artesanal e azeite.</p>
-                <p class="text-xs mt-2" style="color:#9ca3af;">Clique para adicionar ao carrinho</p>
-              </div>
-              <div class="text-right"><span class="text-2xl font-bold" style="color:#d97706;">R$ 49,90</span></div>
-            </div>
-          </div>
-
-          <div class="menu-item rounded-xl p-4"
-               onclick="addToCart('Quatro Queijos', 52.90, '🧀')"
-               style="background:linear-gradient(135deg,#262626 0%,#1f1f1f 100%);border:1px solid #404040;">
-            <div class="flex justify-between items-start">
-              <div class="flex-1 pr-4">
-                <h3 class="font-semibold text-lg" style="color:#fef3c7;">Quatro Queijos</h3>
-                <p class="text-sm mt-1 opacity-80" style="color:#d6d3d1;">Mussarela, gorgonzola, parmesão e catupiry.</p>
-                <p class="text-xs mt-2" style="color:#9ca3af;">Clique para adicionar ao carrinho</p>
-              </div>
-              <div class="text-right"><span class="text-2xl font-bold" style="color:#d97706;">R$ 52,90</span></div>
-            </div>
-          </div>
-
-          <div class="menu-item rounded-xl p-4"
-               onclick="addToCart('Margherita Artesanal', 45.90, '🌿')"
-               style="background:linear-gradient(135deg,#262626 0%,#1f1f1f 100%);border:1px solid #404040;">
-            <div class="flex justify-between items-start">
-              <div class="flex-1 pr-4">
-                <h3 class="font-semibold text-lg" style="color:#fef3c7;">Margherita Artesanal</h3>
-                <p class="text-sm mt-1 opacity-80" style="color:#d6d3d1;">Mussarela de búfala, manjericão e tomate.</p>
-                <p class="text-xs mt-2" style="color:#9ca3af;">Clique para adicionar ao carrinho</p>
-              </div>
-              <div class="text-right"><span class="text-2xl font-bold" style="color:#d97706;">R$ 45,90</span></div>
-            </div>
-          </div>
-        </div>
+        <div id="products-Pizzas" class="space-y-3"></div>
       </section>
 
-      <!-- Bebidas -->
       <section class="mb-8">
         <div class="category-header flex items-center gap-3 mb-4 pb-2" style="border-bottom:2px solid #d97706;">
           <span class="category-icon text-3xl">🥤</span>
           <h2 class="text-2xl font-bold" style="color:#d97706;font-family:'Playfair Display',serif;">Bebidas</h2>
         </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <div class="menu-item rounded-xl p-3 text-center"
-               onclick="addToCart('Refrigerante Lata', 6.00, '🥤')"
-               style="background:linear-gradient(135deg,#262626 0%,#1f1f1f 100%);border:1px solid #404040;">
-            <span class="text-2xl">🥤</span>
-            <h3 class="font-medium mt-1" style="color:#fef3c7;">Refrigerante Lata</h3>
-            <span class="text-lg font-bold" style="color:#d97706;">R$ 6,00</span>
-          </div>
-
-          <div class="menu-item rounded-xl p-3 text-center"
-               onclick="addToCart('Suco Natural', 12.00, '🧃')"
-               style="background:linear-gradient(135deg,#262626 0%,#1f1f1f 100%);border:1px solid #404040;">
-            <span class="text-2xl">🧃</span>
-            <h3 class="font-medium mt-1" style="color:#fef3c7;">Suco Natural</h3>
-            <span class="text-lg font-bold" style="color:#d97706;">R$ 12,00</span>
-          </div>
-
-          <div class="menu-item rounded-xl p-3 text-center"
-               onclick="addToCart('Cerveja Long Neck', 14.00, '🍺')"
-               style="background:linear-gradient(135deg,#262626 0%,#1f1f1f 100%);border:1px solid #404040;">
-            <span class="text-2xl">🍺</span>
-            <h3 class="font-medium mt-1" style="color:#fef3c7;">Cerveja Long Neck</h3>
-            <span class="text-lg font-bold" style="color:#d97706;">R$ 14,00</span>
-          </div>
-
-          <div class="menu-item rounded-xl p-3 text-center"
-               onclick="addToCart('Água Mineral', 4.00, '💧')"
-               style="background:linear-gradient(135deg,#262626 0%,#1f1f1f 100%);border:1px solid #404040;">
-            <span class="text-2xl">💧</span>
-            <h3 class="font-medium mt-1" style="color:#fef3c7;">Água Mineral</h3>
-            <span class="text-lg font-bold" style="color:#d97706;">R$ 4,00</span>
-          </div>
-        </div>
+        <div id="products-Bebidas" class="grid grid-cols-2 gap-3"></div>
       </section>
 
-      <!-- Sobremesas -->
       <section class="mb-8">
         <div class="category-header flex items-center gap-3 mb-4 pb-2" style="border-bottom:2px solid #d97706;">
           <span class="category-icon text-3xl">🍰</span>
           <h2 class="text-2xl font-bold" style="color:#d97706;font-family:'Playfair Display',serif;">Sobremesas</h2>
         </div>
-
-        <div class="space-y-3">
-          <div class="menu-item rounded-xl p-4"
-               onclick="addToCart('Petit Gâteau', 24.90, '🍫')"
-               style="background:linear-gradient(135deg,#262626 0%,#1f1f1f 100%);border:1px solid #404040;">
-            <div class="flex justify-between items-start">
-              <div class="flex-1 pr-4">
-                <h3 class="font-semibold text-lg" style="color:#fef3c7;">Petit Gâteau</h3>
-                <p class="text-sm mt-1 opacity-80" style="color:#d6d3d1;">Chocolate quente com sorvete e calda.</p>
-                <p class="text-xs mt-2" style="color:#9ca3af;">Clique para adicionar ao carrinho</p>
-              </div>
-              <div class="text-right"><span class="text-2xl font-bold" style="color:#d97706;">R$ 24,90</span></div>
-            </div>
-          </div>
-
-          <div class="menu-item rounded-xl p-4"
-               onclick="addToCart('Cheesecake de Frutas', 19.90, '🍓')"
-               style="background:linear-gradient(135deg,#262626 0%,#1f1f1f 100%);border:1px solid #404040;">
-            <div class="flex justify-between items-start">
-              <div class="flex-1 pr-4">
-                <h3 class="font-semibold text-lg" style="color:#fef3c7;">Cheesecake de Frutas</h3>
-                <p class="text-sm mt-1 opacity-80" style="color:#d6d3d1;">Cremoso com cobertura da estação.</p>
-                <p class="text-xs mt-2" style="color:#9ca3af;">Clique para adicionar ao carrinho</p>
-              </div>
-              <div class="text-right"><span class="text-2xl font-bold" style="color:#d97706;">R$ 19,90</span></div>
-            </div>
-          </div>
-
-          <div class="menu-item rounded-xl p-4"
-               onclick="addToCart('Brownie com Sorvete', 22.90, '🍦')"
-               style="background:linear-gradient(135deg,#262626 0%,#1f1f1f 100%);border:1px solid #404040;">
-            <div class="flex justify-between items-start">
-              <div class="flex-1 pr-4">
-                <h3 class="font-semibold text-lg" style="color:#fef3c7;">Brownie com Sorvete</h3>
-                <p class="text-sm mt-1 opacity-80" style="color:#d6d3d1;">Brownie artesanal com calda.</p>
-                <p class="text-xs mt-2" style="color:#9ca3af;">Clique para adicionar ao carrinho</p>
-              </div>
-              <div class="text-right"><span class="text-2xl font-bold" style="color:#d97706;">R$ 22,90</span></div>
-            </div>
-          </div>
-        </div>
+        <div id="products-Sobremesas" class="space-y-3"></div>
       </section>
 
-      <!-- WhatsApp CTA (só “cardápio”, pedido é pelo checkout) -->
+      <!-- CTA -->
       <div class="sticky bottom-4 z-50 px-4">
         <div class="delivery-animation mb-3 flex items-center justify-center gap-2">
           <span class="delivery-bike text-4xl">🏍️</span>
@@ -533,9 +339,7 @@
     <div id="game-modal" class="modal-overlay">
       <div class="modal-content p-4">
         <div class="flex justify-between items-center mb-3">
-          <h2 class="text-xl font-bold" style="color:#fef3c7; font-family:'Playfair Display',serif;">
-            🎮 Jogo
-          </h2>
+          <h2 class="text-xl font-bold" style="color:#fef3c7; font-family:'Playfair Display',serif;">🎮 Jogo</h2>
           <button onclick="closeGame()" class="text-3xl" style="color:#d6d3d1;">×</button>
         </div>
 
@@ -552,12 +356,12 @@
         </div>
 
         <div id="game-fallback" class="mt-4 hidden text-center">
-         <p class="text-sm mb-3" style="color:#d6d3d1;">
-  O Subway Surfers bloqueia abrir dentro do site. Clique abaixo para jogar em nova aba:
-</p>
+          <p class="text-sm mb-3" style="color:#d6d3d1;">
+            O Subway Surfers bloqueia abrir dentro do site. Clique abaixo para jogar em nova aba:
+          </p>
           <a id="game-open-tab" class="inline-block px-5 py-3 rounded-xl font-extrabold"
-            style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color:#06140b;"
-            target="_blank" rel="noopener">
+             style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color:#06140b;"
+             target="_blank" rel="noopener">
             Abrir em nova aba ✅
           </a>
         </div>
@@ -566,14 +370,18 @@
 
   </div>
 
-  <!-- SCRIPT ÚNICO -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, query, orderBy } 
-  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      serverTimestamp,
+      onSnapshot,
+      query,
+      orderBy
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    // ====== FIREBASE CONFIG (SEU) ======
     const firebaseConfig = {
       apiKey: "AIzaSyBqFZJ5wg3VIJlJtA4DgFS499_9rXu-zAk",
       authDomain: "cardapio-digital-adc3d.firebaseapp.com",
@@ -586,13 +394,9 @@ import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, query, o
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // ====== CONFIG ======
-    const RESTAURANT_PHONE = "5511999999999"; // troque pelo número do restaurante
-
-    // ====== STATE ======
+    const RESTAURANT_PHONE = "5511999999999"; // troque pelo número real
     let cart = [];
 
-    // ====== HELPERS ======
     const $ = (id) => document.getElementById(id);
     const digits = (v) => String(v||"").replace(/\D/g,"");
     const money = (v) => `R$ ${Number(v||0).toFixed(2).replace(".", ",")}`;
@@ -659,7 +463,6 @@ import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, query, o
       cartTotal.textContent = money(totalPrice);
     }
 
-    // ====== GLOBAL FUNCS (onclick no HTML) ======
     window.addToCart = function(name, price, emoji){
       const existing = cart.find(i => i.name === name);
       if (existing) existing.quantity++;
@@ -687,21 +490,18 @@ import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, query, o
       updateCartUI();
     };
 
-    // Close modals clicking outside
     document.querySelectorAll('.modal-overlay').forEach(modal => {
       modal.addEventListener('click', function(e) {
         if (e.target === this) this.classList.remove('active');
       });
     });
 
-    // CEP mask
     $("customer-cep").addEventListener('input', function(e) {
       let v = e.target.value.replace(/\D/g, '');
       if (v.length > 5) v = v.slice(0,5) + '-' + v.slice(5,8);
       e.target.value = v;
     });
 
-    // ====== SUBMIT ORDER (Firestore + WhatsApp) ======
     $("checkout-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       $("checkout-error").classList.add("hidden");
@@ -718,87 +518,171 @@ import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, query, o
         const complement = $("customer-complement").value.trim();
 
         const total = cart.reduce((sum, i) => sum + (i.price * i.quantity), 0);
-
         const addressLine = `${address} — ${neighborhood}, ${city} • CEP ${cep}${complement ? " • " + complement : ""}`;
 
         const orderDoc = {
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
           status: "new",
-          customer: {
-            name,
-            phone,
-            addressLine
-          },
-          items: cart.map(i => ({
-            name: i.name,
-            qty: i.quantity,
-            price: i.price,
-            emoji: i.emoji
-          })),
+          customer: { name, phone, addressLine },
+          items: cart.map(i => ({ name: i.name, qty: i.quantity, price: i.price, emoji: i.emoji })),
           total: Number(total)
         };
 
-        // SALVA NO FIRESTORE (orders)
         await addDoc(collection(db, "orders"), orderDoc);
 
-        // MONTA MENSAGEM
         let msg = `🍽️ *NOVO PEDIDO*\\n\\n`;
         msg += `👤 *Cliente:* ${name}\\n`;
         msg += `📱 *Telefone:* ${phone}\\n\\n`;
         msg += `📍 *Endereço:*\\n${addressLine}\\n\\n`;
-        msg += `🛒 *Itens:*\\n\\n`;
+        msg += `🛒 *Itens:*\\n`;
         orderDoc.items.forEach(i => {
-          msg += `${i.emoji || "🍽️"} ${i.qty}x ${i.name} — R$ ${(i.price * i.qty).toFixed(2)}\\n`;
+          msg += `\\n${i.emoji || "🍽️"} ${i.qty}x ${i.name} — R$ ${(i.price * i.qty).toFixed(2)}`;
         });
-        msg += `\\n💰 *TOTAL: R$ ${orderDoc.total.toFixed(2)}*\\n`;
+        msg += `\\n\\n💰 *TOTAL: R$ ${orderDoc.total.toFixed(2)}*\\n`;
         msg += `\\n⏱️ Tempo estimado: 45min a 1:20h`;
 
-        const restaurantPhone = digits(RESTAURANT_PHONE);
-        const waUrl = restaurantPhone
-          ? `https://wa.me/${restaurantPhone}?text=${encodeURIComponent(msg)}`
-          : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+        const waUrl = `https://wa.me/${digits(RESTAURANT_PHONE)}?text=${encodeURIComponent(msg)}`;
 
         window.closeCheckout();
         $("success-modal").classList.add("active");
-
         setTimeout(() => window.open(waUrl, "_blank", "noopener,noreferrer"), 450);
 
         $("checkout-form").reset();
         cart = [];
         updateCartUI();
       } catch (err) {
+        console.error(err);
         $("checkout-error").classList.remove("hidden");
       }
     });
 
-    // ====== GAME MODAL ======
-    // Se você tiver o link do jogo que FUNCIONAVA no iframe, troque aqui:
+    // ==============================
+    // PRODUTOS (Firestore -> products)
+    // ==============================
+    function escapeHtml(str){
+      return String(str ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function moneyBR(value){
+      const n = Number(value || 0);
+      return n.toLocaleString("pt-BR", { style:"currency", currency:"BRL" });
+    }
+
+    function normalizeCategory(cat){
+      const c = String(cat || "").trim().toLowerCase();
+      if (c.includes("lanche")) return "Lanches";
+      if (c.includes("pizza")) return "Pizzas";
+      if (c.includes("bebida")) return "Bebidas";
+      if (c.includes("sobrem")) return "Sobremesas";
+      return "Lanches";
+    }
+
+    function renderProductCard(p){
+      const emoji = p.emoji || "🍽️";
+      const nameText = escapeHtml(p.name || "Produto");
+      const desc = escapeHtml(p.description || "");
+      const price = Number(p.price || 0);
+
+      const safeName = (p.name || "Produto").replaceAll("\\", "\\\\").replaceAll("'", "\\'");
+      const safeEmoji = (emoji || "🍽️").replaceAll("\\", "\\\\").replaceAll("'", "\\'");
+
+      if (normalizeCategory(p.category) === "Bebidas") {
+        return `
+          <div class="menu-item rounded-xl p-3 text-center"
+               onclick="addToCart('${safeName}', ${price}, '${safeEmoji}')"
+               style="background:linear-gradient(135deg,#262626 0%,#1f1f1f 100%);border:1px solid #404040;">
+            <div class="w-full aspect-[4/3] rounded-lg overflow-hidden mb-2" style="background:#0f0f0f;">
+              ${p.imageUrl
+                ? `<img src="${escapeHtml(p.imageUrl)}" alt="${nameText}" class="w-full h-full object-cover" loading="lazy">`
+                : `<div class="w-full h-full flex items-center justify-center text-3xl">${emoji}</div>`}
+            </div>
+            <h3 class="font-medium" style="color:#fef3c7;">${nameText}</h3>
+            <span class="text-lg font-bold" style="color:#d97706;">${moneyBR(price)}</span>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="menu-item rounded-xl p-4"
+             onclick="addToCart('${safeName}', ${price}, '${safeEmoji}')"
+             style="background:linear-gradient(135deg,#262626 0%,#1f1f1f 100%);border:1px solid #404040;">
+          <div class="flex gap-4">
+            <div class="w-24 h-24 rounded-xl overflow-hidden flex items-center justify-center"
+                 style="background:#0f0f0f; border:1px solid #404040;">
+              ${p.imageUrl
+                ? `<img src="${escapeHtml(p.imageUrl)}" alt="${nameText}" class="w-full h-full object-cover" loading="lazy">`
+                : `<span class="text-4xl">${emoji}</span>`}
+            </div>
+
+            <div class="flex-1">
+              <div class="flex justify-between items-start gap-3">
+                <h3 class="font-semibold text-lg" style="color:#fef3c7;">${nameText}</h3>
+                <span class="text-2xl font-bold" style="color:#d97706;">${moneyBR(price)}</span>
+              </div>
+
+              ${desc ? `<p class="text-sm mt-1 opacity-80" style="color:#d6d3d1;">${desc}</p>` : ""}
+              <p class="text-xs mt-2" style="color:#9ca3af;">Clique para adicionar ao carrinho</p>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function clearSections(){
+      ["Lanches","Pizzas","Bebidas","Sobremesas"].forEach(cat => {
+        const el = document.getElementById(`products-${cat}`);
+        if (el) el.innerHTML = "";
+      });
+    }
+
+    function mountProducts(list){
+      clearSections();
+
+      const active = list.filter(p => p.isActive !== false);
+
+      for (const p of active) {
+        const cat = normalizeCategory(p.category);
+        const container = document.getElementById(`products-${cat}`);
+        if (!container) continue;
+        container.insertAdjacentHTML("beforeend", renderProductCard(p));
+      }
+    }
+
+    function startProductsRealtime(){
+      const qy = query(collection(db, "products"), orderBy("createdAt", "desc"));
+      onSnapshot(qy, (snap) => {
+        const products = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        mountProducts(products);
+      }, (err) => {
+        console.error("Falha ao ler products:", err);
+      });
+    }
+
+    // ====== GAME ======
     const GAME_URL = "https://subway-surfers.gg/";
 
     window.openGame = function(){
-  const modal = document.getElementById("game-modal");
-  const iframe = document.getElementById("game-iframe");
-  const fallback = document.getElementById("game-fallback");
-  const openTab = document.getElementById("game-open-tab");
+      const modal = $("game-modal");
+      const iframe = $("game-iframe");
+      const fallback = $("game-fallback");
+      const openTab = $("game-open-tab");
 
-  // Sempre deixar o botão "nova aba" pronto
-  openTab.href = GAME_URL;
+      openTab.href = GAME_URL;
 
-  // Mostra modal
-  modal.classList.add("active");
+      modal.classList.add("active");
+      fallback.classList.add("hidden");
+      iframe.src = GAME_URL;
 
-  // Tenta iframe (provavelmente será bloqueado)
-  fallback.classList.add("hidden");
-  iframe.src = GAME_URL;
-
-  // Se bloquear, a gente mostra o fallback rapidamente
-  // (não existe 100% de detecção confiável, então mostramos por tempo)
-  setTimeout(() => {
-    fallback.classList.remove("hidden");
-  }, 1200);
-};
-
+      setTimeout(() => {
+        fallback.classList.remove("hidden");
+      }, 1200);
+    };
 
     window.closeGame = function(){
       $("game-modal").classList.remove("active");
@@ -807,6 +691,7 @@ import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, query, o
 
     // INIT
     updateCartUI();
+    startProductsRealtime();
   </script>
 </body>
 </html>
