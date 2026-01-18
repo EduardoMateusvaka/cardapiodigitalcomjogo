@@ -4,48 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Painel do Restaurante (Admin)</title>
+
   <script src="https://cdn.tailwindcss.com"></script>
-  <section id="view-orders" class="hidden">
-  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-    <div class="lg:col-span-4 space-y-6">
-      <div class="card p-5">
-        <h2 class="text-xl font-bold title" style="color:#fde68a;">Pedidos em tempo real</h2>
-        <p class="text-sm muted mt-2">Coleção: <b>restaurants/{id}/orders</b></p>
-        <div class="divider my-5"></div>
-
-        <label class="text-sm font-semibold" style="color:#fde68a;">Filtrar status</label>
-        <select id="orders-filter" class="input mt-2">
-          <option value="all">Todos</option>
-          <option value="new">Novos</option>
-          <option value="accepted">Aceitos</option>
-          <option value="preparing">Preparando</option>
-          <option value="ready">Pronto</option>
-          <option value="delivered">Entregue</option>
-          <option value="canceled">Cancelado</option>
-        </select>
-
-        <p id="orders-error" class="text-xs mt-3 hidden" style="color:#ef4444;"></p>
-      </div>
-    </div>
-
-    <div class="lg:col-span-8 space-y-6">
-      <div class="card p-5">
-        <div class="flex items-center justify-between gap-3">
-          <h2 class="text-xl font-bold title" style="color:#fde68a;">Lista de Pedidos</h2>
-          <span id="orders-count" class="badge badge-new">📦 0</span>
-        </div>
-
-        <div id="orders-empty" class="mt-6 p-6 rounded-xl bg-neutral-950 border border-neutral-800 text-center hidden">
-          <p class="text-lg font-bold" style="color:#fde68a;">Nenhum pedido ainda</p>
-          <p class="text-sm muted mt-1">Quando alguém pedir, aparece aqui.</p>
-        </div>
-
-        <div id="orders-list" class="mt-5 space-y-4"></div>
-      </div>
-    </div>
-  </div>
-</section>
-
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -129,7 +89,9 @@
     </div>
   </div>
 
+  <!-- APP -->
   <div id="app" class="min-h-screen hidden">
+    <!-- Topbar -->
     <header class="sticky top-0 z-50 backdrop-blur bg-black/70 border-b border-neutral-800">
       <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-3">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
@@ -142,34 +104,35 @@
           </div>
         </div>
 
+        <!-- Tabs -->
         <div class="flex flex-wrap gap-2">
           <button id="tab-products" class="tab active">🍔 Produtos</button>
+          <button id="tab-orders" class="tab">📦 Pedidos</button>
           <button id="tab-categories" class="tab">📝 Categorias</button>
           <button id="tab-settings" class="tab">⚙️ Dados do Restaurante</button>
         </div>
       </div>
     </header>
-<!-- LINK DE DIVULGAÇÃO -->
-<section class="card p-5 max-w-2xl mb-6">
-  <h2 class="text-xl font-bold title" style="color:#fde68a;">🔗 Link de Divulgação</h2>
-  <p class="text-sm muted mt-2">Envie este link para seus clientes acessarem o cardápio do seu restaurante.</p>
 
-  <div class="divider my-5"></div>
+    <main class="max-w-7xl mx-auto px-4 py-6 space-y-6">
 
-  <label class="text-sm font-semibold" style="color:#fde68a;">Esse é seu link de divulgação:</label>
+      <!-- LINK DE DIVULGAÇÃO -->
+      <section class="card p-5 max-w-3xl">
+        <h2 class="text-xl font-bold title" style="color:#fde68a;">🔗 Link de Divulgação</h2>
+        <p class="text-sm muted mt-2">Envie este link para seus clientes acessarem o cardápio do seu restaurante.</p>
 
-  <div class="mt-2 flex flex-col md:flex-row gap-2">
-    <input id="share-link" class="input flex-1" readonly value="Carregando..." />
-    <button id="btn-copy-link" class="btn btn-primary">📋 Copiar</button>
-    <a id="btn-open-link" class="btn btn-dark text-center" target="_blank" rel="noopener">🔎 Abrir</a>
-  </div>
+        <div class="divider my-5"></div>
 
-  <p id="share-tip" class="text-xs muted mt-3">
-    Dica: você pode colocar esse link no Instagram, WhatsApp e Google.
-  </p>
-</section>
+        <label class="text-sm font-semibold" style="color:#fde68a;">Esse é seu link de divulgação:</label>
 
-    <main class="max-w-7xl mx-auto px-4 py-6">
+        <div class="mt-2 flex flex-col md:flex-row gap-2">
+          <input id="share-link" class="input flex-1" readonly value="Carregando..." />
+          <button id="btn-copy-link" class="btn btn-primary">📋 Copiar</button>
+          <a id="btn-open-link" class="btn btn-dark text-center" target="_blank" rel="noopener">🔎 Abrir</a>
+        </div>
+
+        <p class="text-xs muted mt-3">Dica: coloque esse link no Instagram, WhatsApp e Google.</p>
+      </section>
 
       <!-- PRODUCTS VIEW -->
       <section id="view-products">
@@ -204,6 +167,69 @@
               </div>
 
               <div id="products-list" class="mt-5 space-y-4"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ORDERS VIEW -->
+      <section id="view-orders" class="hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div class="lg:col-span-4 space-y-6">
+            <div class="card p-5">
+              <h2 class="text-xl font-bold title" style="color:#fde68a;">Pedidos em tempo real</h2>
+              <p class="text-sm muted mt-2">Coleção: <b>restaurants/{id}/orders</b></p>
+              <div class="divider my-5"></div>
+
+              <label class="text-sm font-semibold" style="color:#fde68a;">Filtrar status</label>
+              <select id="orders-filter" class="input mt-2">
+                <option value="all">Todos</option>
+                <option value="new">Novos</option>
+                <option value="accepted">Aceitos</option>
+                <option value="preparing">Preparando</option>
+                <option value="ready">Pronto</option>
+                <option value="delivered">Entregue</option>
+                <option value="canceled">Cancelado</option>
+              </select>
+
+              <p id="orders-error" class="text-xs mt-3 hidden" style="color:#ef4444;"></p>
+            </div>
+
+            <div class="card p-5">
+              <h3 class="text-lg font-bold title" style="color:#fde68a;">📊 Dashboard rápido</h3>
+              <p class="text-sm muted mt-1">Baseado nos últimos 200 pedidos.</p>
+              <div class="divider my-5"></div>
+
+              <div class="space-y-2">
+                <div class="flex justify-between">
+                  <span class="muted">Pedidos</span>
+                  <b id="dash-orders" style="color:#fde68a;">0</b>
+                </div>
+                <div class="flex justify-between">
+                  <span class="muted">Faturamento</span>
+                  <b id="dash-revenue" style="color:#fde68a;">R$ 0,00</b>
+                </div>
+              </div>
+
+              <div class="divider my-5"></div>
+              <p class="text-sm font-bold" style="color:#fde68a;">Mais vendidos</p>
+              <div id="dash-top-items" class="mt-3 space-y-2 text-sm"></div>
+            </div>
+          </div>
+
+          <div class="lg:col-span-8 space-y-6">
+            <div class="card p-5">
+              <div class="flex items-center justify-between gap-3">
+                <h2 class="text-xl font-bold title" style="color:#fde68a;">Lista de Pedidos</h2>
+                <span id="orders-count" class="badge badge-new">📦 0</span>
+              </div>
+
+              <div id="orders-empty" class="mt-6 p-6 rounded-xl bg-neutral-950 border border-neutral-800 text-center hidden">
+                <p class="text-lg font-bold" style="color:#fde68a;">Nenhum pedido ainda</p>
+                <p class="text-sm muted mt-1">Quando alguém pedir, aparece aqui.</p>
+              </div>
+
+              <div id="orders-list" class="mt-5 space-y-4"></div>
             </div>
           </div>
         </div>
@@ -280,6 +306,7 @@
             <div>
               <label class="text-sm font-semibold" style="color:#fde68a;">WhatsApp do restaurante (somente números)</label>
               <input id="set-whatsapp" class="input mt-2" placeholder="5511999999999" />
+              <p class="text-xs muted mt-2">Esse número é o que o index usa pra abrir o WhatsApp com a mensagem do pedido.</p>
             </div>
           </div>
 
@@ -289,35 +316,34 @@
           <p id="settings-msg" class="text-sm mt-3 hidden"></p>
         </div>
       </section>
+
     </main>
   </div>
 
   <script type="module">
-    import {
-  getFirestore,
-  collection,
-  query,
-  orderBy,
-  onSnapshot,
-  doc,
-  getDoc,
-  updateDoc,
-  serverTimestamp,
-  addDoc,
-  deleteDoc,
-  setDoc,
-  limit
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
-      getFirestore, collection, query, orderBy, onSnapshot,
-      doc, getDoc, updateDoc, serverTimestamp, addDoc, deleteDoc, setDoc
+      getFirestore,
+      collection,
+      query,
+      orderBy,
+      onSnapshot,
+      doc,
+      getDoc,
+      updateDoc,
+      serverTimestamp,
+      addDoc,
+      deleteDoc,
+      setDoc,
+      limit
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     import {
-      getAuth, signInWithEmailAndPassword, onAuthStateChanged,
-      signOut, createUserWithEmailAndPassword
+      getAuth,
+      signInWithEmailAndPassword,
+      onAuthStateChanged,
+      signOut,
+      createUserWithEmailAndPassword
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
     const firebaseConfig = {
@@ -371,7 +397,6 @@
       const menuRef = doc(db, "restaurants", restaurantId, "settings", "menu");
       const userRef = doc(db, "users", user.uid);
 
-      // 1) restaurante
       await setDoc(restRef, {
         name: regData.restaurantName || "Meu Restaurante",
         logoUrl: "",
@@ -386,24 +411,13 @@
         updatedAt: serverTimestamp()
       });
 
-      // 2) members (dono)
-      await setDoc(memberRef, {
-        role: "owner",
-        createdAt: serverTimestamp()
-      });
+      await setDoc(memberRef, { role: "owner", createdAt: serverTimestamp() });
 
-      // 3) settings/menu
       await setDoc(menuRef, {
-        categoryTitles: {
-          Lanches: "Lanches",
-          Pizzas: "Pizzas",
-          Bebidas: "Bebidas",
-          Sobremesas: "Sobremesas"
-        },
+        categoryTitles: { Lanches:"Lanches", Pizzas:"Pizzas", Bebidas:"Bebidas", Sobremesas:"Sobremesas" },
         updatedAt: serverTimestamp()
       }, { merge: true });
 
-      // 4) user profile -> amarra o uid ao restaurante (isso elimina ?r=)
       await setDoc(userRef, {
         restaurantId,
         role: "owner",
@@ -445,7 +459,6 @@
 
         alert(`✅ Conta criada!\n\nSeu cardápio:\nindex.html?r=${restaurantId}\n\n(Guarde esse link)`);
       } catch (e) {
-        // Caso clássico: email já existe
         if (String(e?.code || "").includes("auth/email-already-in-use")) {
           $("register-error").textContent = "Esse email já está cadastrado. Clique em ENTRAR e faça login.";
           $("register-error").classList.remove("hidden");
@@ -468,16 +481,14 @@
     // Tabs
     // =======================
     function setTab(tab){
-      const tabs = ["products","categories","settings","orders"];
-      $("tab-orders").addEventListener("click", () => setTab("orders"));
+      const tabs = ["products","orders","categories","settings"];
       tabs.forEach(t => {
         $("tab-"+t).classList.toggle("active", t === tab);
         $("view-"+t).classList.toggle("hidden", t !== tab);
       });
-      <button id="tab-orders" class="tab">📦 Pedidos</button>
-
     }
     $("tab-products").addEventListener("click", () => setTab("products"));
+    $("tab-orders").addEventListener("click", () => setTab("orders"));
     $("tab-categories").addEventListener("click", () => setTab("categories"));
     $("tab-settings").addEventListener("click", () => setTab("settings"));
 
@@ -489,24 +500,58 @@
     function restDoc(){ return doc(db, "restaurants", restaurantId); }
     function menuDoc(){ return doc(db, "restaurants", restaurantId, "settings", "menu"); }
     function productsCol(){ return collection(db, "restaurants", restaurantId, "products"); }
+    function ordersCol(){ return collection(db, "restaurants", restaurantId, "orders"); }
 
     async function resolveRestaurantId(user){
-      // 1) tenta /users/{uid}
       try{
         const us = await getDoc(doc(db, "users", user.uid));
         if (us.exists() && us.data()?.restaurantId) return String(us.data().restaurantId);
       }catch(e){}
 
-      // 2) fallback: se alguém tiver um restaurante antigo salvo no navegador
       const saved = localStorage.getItem("restaurantId") || "";
       if (saved) return saved;
 
-      // 3) fallback: URL param ?r=
       const url = new URL(location.href);
       const r = (url.searchParams.get("r") || "").trim();
       if (r) return r;
 
       return "";
+    }
+
+    // =======================
+    // Share link
+    // =======================
+    function buildShareLink(restaurantId){
+      const base = location.origin; // ex: https://seusite.netlify.app
+      return `${base}/index.html?r=${encodeURIComponent(restaurantId)}`;
+    }
+
+    function updateShareLinkUI(){
+      const link = buildShareLink(restaurantId);
+      const input = $("share-link");
+      const btnCopy = $("btn-copy-link");
+      const btnOpen = $("btn-open-link");
+
+      if(input) input.value = link;
+      if(btnOpen) btnOpen.href = link;
+
+      if(btnCopy){
+        btnCopy.onclick = async () => {
+          try{
+            await navigator.clipboard.writeText(link);
+            btnCopy.textContent = "✅ Copiado!";
+            setTimeout(() => (btnCopy.textContent = "📋 Copiar"), 1200);
+          }catch(e){
+            if(input){
+              input.focus();
+              input.select();
+              document.execCommand("copy");
+              btnCopy.textContent = "✅ Copiado!";
+              setTimeout(() => (btnCopy.textContent = "📋 Copiar"), 1200);
+            }
+          }
+        };
+      }
     }
 
     // =======================
@@ -619,6 +664,7 @@
         .replaceAll('"',"&quot;")
         .replaceAll("'","&#039;");
     }
+
     function safeNumber(v){
       const n = Number(String(v ?? "").replace(",", "."));
       return isNaN(n) ? 0 : n;
@@ -761,6 +807,172 @@
     $("prod-search").addEventListener("input", renderProducts);
 
     // =======================
+    // Orders (Realtime + status + dashboard)
+    // =======================
+    let unsubOrders = null;
+    let liveOrders = [];
+
+    function moneyBR(v){
+      const n = Number(v || 0);
+      return n.toLocaleString("pt-BR", { style:"currency", currency:"BRL" });
+    }
+
+    function fmtDate(ts){
+      try{
+        if(!ts) return "";
+        const d = ts?.toDate ? ts.toDate() : new Date(ts);
+        return d.toLocaleString("pt-BR");
+      }catch{
+        return "";
+      }
+    }
+
+    function statusLabel(s){
+      const map = {
+        new: "🆕 Novo",
+        accepted: "✅ Aceito",
+        preparing: "👨‍🍳 Preparando",
+        ready: "📦 Pronto",
+        delivered: "🏁 Entregue",
+        canceled: "❌ Cancelado"
+      };
+      return map[s] || s || "—";
+    }
+
+    async function updateOrderStatus(orderId, status){
+      $("orders-error").classList.add("hidden");
+      try{
+        await updateDoc(doc(db, "restaurants", restaurantId, "orders", orderId), {
+          status,
+          updatedAt: serverTimestamp()
+        });
+      }catch(e){
+        $("orders-error").textContent = "Erro ao atualizar status do pedido. Verifique rules.";
+        $("orders-error").classList.remove("hidden");
+      }
+    }
+
+    function renderDashboard(){
+      const orders = liveOrders || [];
+      $("dash-orders").textContent = String(orders.length);
+
+      const revenue = orders.reduce((s, o) => s + Number(o.total || 0), 0);
+      $("dash-revenue").textContent = moneyBR(revenue);
+
+      // top items
+      const map = new Map(); // name -> qty
+      for(const o of orders){
+        for(const it of (o.items || [])){
+          const key = String(it.name || "Item").trim();
+          const qty = Number(it.qty || 0);
+          map.set(key, (map.get(key) || 0) + qty);
+        }
+      }
+      const top = [...map.entries()].sort((a,b) => b[1]-a[1]).slice(0, 10);
+      const box = $("dash-top-items");
+      if(!box) return;
+
+      if(top.length === 0){
+        box.innerHTML = `<p class="muted">Sem dados ainda.</p>`;
+        return;
+      }
+
+      box.innerHTML = top.map(([name, qty]) => `
+        <div class="flex justify-between rounded-xl bg-neutral-950 border border-neutral-800 px-3 py-2">
+          <span class="text-sm" style="color:#fde68a;">${escapeHtml(name)}</span>
+          <b style="color:#fde68a;">${qty}</b>
+        </div>
+      `).join("");
+    }
+
+    function renderOrders(){
+      const filter = ($("orders-filter")?.value || "all");
+      let list = [...liveOrders];
+
+      if(filter !== "all"){
+        list = list.filter(o => (o.status || "new") === filter);
+      }
+
+      $("orders-count").textContent = `📦 ${list.length}`;
+      $("orders-empty").classList.toggle("hidden", list.length !== 0);
+
+      $("orders-list").innerHTML = list.map(o => {
+        const items = (o.items || [])
+          .map(i => `• ${i.qty}x ${escapeHtml(i.emoji || "🍽️")} ${escapeHtml(i.name)} — ${moneyBR((i.price||0)*(i.qty||0))}`)
+          .join("<br>");
+
+        const addr = escapeHtml(o.customer?.addressLine || "—");
+        const cust = `${escapeHtml(o.customer?.name || "—")} • ${escapeHtml(o.customer?.phone || "—")}`;
+
+        const curStatus = (o.status || "new");
+
+        return `
+          <div class="p-4 rounded-xl bg-neutral-950 border border-neutral-800" data-order="${o.id}">
+            <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
+              <div class="space-y-2">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="badge badge-new">${statusLabel(curStatus)}</span>
+                  <span class="text-xs muted">${fmtDate(o.createdAt)}</span>
+                  <span class="text-xs muted">ID: ${escapeHtml(o.id)}</span>
+                </div>
+
+                <div class="text-sm" style="color:#fde68a;"><b>Cliente:</b> ${cust}</div>
+                <div class="text-sm muted"><b>Endereço:</b> ${addr}</div>
+
+                <div class="mt-3 text-sm muted">
+                  <b>Itens:</b><br>${items || "—"}
+                </div>
+
+                <div class="mt-2 text-lg font-extrabold" style="color:#fde68a;">
+                  Total: ${moneyBR(o.total)}
+                </div>
+              </div>
+
+              <div class="min-w-[220px] space-y-2">
+                <select class="input" data-act="status">
+                  <option value="new" ${curStatus==="new"?"selected":""}>🆕 Novo</option>
+                  <option value="accepted" ${curStatus==="accepted"?"selected":""}>✅ Aceito</option>
+                  <option value="preparing" ${curStatus==="preparing"?"selected":""}>👨‍🍳 Preparando</option>
+                  <option value="ready" ${curStatus==="ready"?"selected":""}>📦 Pronto</option>
+                  <option value="delivered" ${curStatus==="delivered"?"selected":""}>🏁 Entregue</option>
+                  <option value="canceled" ${curStatus==="canceled"?"selected":""}>❌ Cancelado</option>
+                </select>
+
+                <button class="btn btn-primary w-full" data-act="save-status" data-id="${o.id}">💾 Salvar status</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      $("orders-list").querySelectorAll(`button[data-act="save-status"]`).forEach(btn => {
+        btn.onclick = async () => {
+          const id = btn.dataset.id;
+          const row = document.querySelector(`[data-order="${id}"]`);
+          const sel = row?.querySelector(`[data-act="status"]`);
+          const status = sel?.value || "new";
+          await updateOrderStatus(id, status);
+        };
+      });
+
+      renderDashboard();
+    }
+
+    function startOrdersRealtime(){
+      if(unsubOrders) unsubOrders();
+      const qy = query(ordersCol(), orderBy("createdAt", "desc"), limit(200));
+      unsubOrders = onSnapshot(qy, (snap) => {
+        liveOrders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderOrders();
+      }, () => {
+        $("orders-error").textContent = "Erro ao carregar pedidos. Verifique rules.";
+        $("orders-error").classList.remove("hidden");
+      });
+    }
+
+    $("orders-filter")?.addEventListener("change", renderOrders);
+
+    // =======================
     // Auth state
     // =======================
     $("btn-logout").addEventListener("click", async () => {
@@ -770,58 +982,26 @@
     onAuthStateChanged(auth, async (user) => {
       if(user){
         restaurantId = await resolveRestaurantId(user);
-updateShareLinkUI();
 
         if(!restaurantId){
           alert("⚠️ Não encontrei o restaurante desse usuário.\nCrie a conta novamente ou verifique /users/{uid}.");
           await signOut(auth);
           return;
         }
-        function buildShareLink(restaurantId){
-  const base = location.origin; // ex: https://seusite.netlify.app
-  return `${base}/index.html?r=${encodeURIComponent(restaurantId)}`;
-}
 
-function updateShareLinkUI(){
-  const link = buildShareLink(restaurantId);
-
-  const input = document.getElementById("share-link");
-  const btnCopy = document.getElementById("btn-copy-link");
-  const btnOpen = document.getElementById("btn-open-link");
-
-  if(input) input.value = link;
-  if(btnOpen) btnOpen.href = link;
-
-  if(btnCopy){
-    btnCopy.onclick = async () => {
-      try{
-        await navigator.clipboard.writeText(link);
-        btnCopy.textContent = "✅ Copiado!";
-        setTimeout(() => (btnCopy.textContent = "📋 Copiar"), 1200);
-      }catch(e){
-        // fallback: seleciona e copia
-        if(input){
-          input.focus();
-          input.select();
-          document.execCommand("copy");
-          btnCopy.textContent = "✅ Copiado!";
-          setTimeout(() => (btnCopy.textContent = "📋 Copiar"), 1200);
-        }
-      }
-    };
-  }
-}
-
-
-        // guarda no navegador (ajuda)
         localStorage.setItem("restaurantId", restaurantId);
 
         $("login-overlay").classList.add("hidden");
         $("app").classList.remove("hidden");
 
+        updateShareLinkUI();
+
         await loadRestaurantSettings();
         await loadCategoryTitles();
+
         startProductsRealtime();
+        startOrdersRealtime();
+
         setTab("products");
       } else {
         $("app").classList.add("hidden");
@@ -833,6 +1013,16 @@ function updateShareLinkUI(){
         $("products-list").innerHTML = "";
         $("products-count").textContent = "🍔 0";
         $("products-empty").classList.add("hidden");
+
+        if(unsubOrders) unsubOrders();
+        unsubOrders = null;
+        liveOrders = [];
+        $("orders-list").innerHTML = "";
+        $("orders-count").textContent = "📦 0";
+        $("orders-empty").classList.add("hidden");
+        $("dash-orders").textContent = "0";
+        $("dash-revenue").textContent = "R$ 0,00";
+        $("dash-top-items").innerHTML = "";
       }
     });
   </script>
