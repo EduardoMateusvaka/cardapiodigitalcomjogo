@@ -108,6 +108,25 @@
         </div>
       </div>
     </header>
+<!-- LINK DE DIVULGAÇÃO -->
+<section class="card p-5 max-w-2xl mb-6">
+  <h2 class="text-xl font-bold title" style="color:#fde68a;">🔗 Link de Divulgação</h2>
+  <p class="text-sm muted mt-2">Envie este link para seus clientes acessarem o cardápio do seu restaurante.</p>
+
+  <div class="divider my-5"></div>
+
+  <label class="text-sm font-semibold" style="color:#fde68a;">Esse é seu link de divulgação:</label>
+
+  <div class="mt-2 flex flex-col md:flex-row gap-2">
+    <input id="share-link" class="input flex-1" readonly value="Carregando..." />
+    <button id="btn-copy-link" class="btn btn-primary">📋 Copiar</button>
+    <a id="btn-open-link" class="btn btn-dark text-center" target="_blank" rel="noopener">🔎 Abrir</a>
+  </div>
+
+  <p id="share-tip" class="text-xs muted mt-3">
+    Dica: você pode colocar esse link no Instagram, WhatsApp e Google.
+  </p>
+</section>
 
     <main class="max-w-7xl mx-auto px-4 py-6">
 
@@ -691,12 +710,48 @@
     onAuthStateChanged(auth, async (user) => {
       if(user){
         restaurantId = await resolveRestaurantId(user);
+updateShareLinkUI();
 
         if(!restaurantId){
           alert("⚠️ Não encontrei o restaurante desse usuário.\nCrie a conta novamente ou verifique /users/{uid}.");
           await signOut(auth);
           return;
         }
+        function buildShareLink(restaurantId){
+  const base = location.origin; // ex: https://seusite.netlify.app
+  return `${base}/index.html?r=${encodeURIComponent(restaurantId)}`;
+}
+
+function updateShareLinkUI(){
+  const link = buildShareLink(restaurantId);
+
+  const input = document.getElementById("share-link");
+  const btnCopy = document.getElementById("btn-copy-link");
+  const btnOpen = document.getElementById("btn-open-link");
+
+  if(input) input.value = link;
+  if(btnOpen) btnOpen.href = link;
+
+  if(btnCopy){
+    btnCopy.onclick = async () => {
+      try{
+        await navigator.clipboard.writeText(link);
+        btnCopy.textContent = "✅ Copiado!";
+        setTimeout(() => (btnCopy.textContent = "📋 Copiar"), 1200);
+      }catch(e){
+        // fallback: seleciona e copia
+        if(input){
+          input.focus();
+          input.select();
+          document.execCommand("copy");
+          btnCopy.textContent = "✅ Copiado!";
+          setTimeout(() => (btnCopy.textContent = "📋 Copiar"), 1200);
+        }
+      }
+    };
+  }
+}
+
 
         // guarda no navegador (ajuda)
         localStorage.setItem("restaurantId", restaurantId);
