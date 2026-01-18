@@ -380,7 +380,8 @@
       onSnapshot,
       query,
       orderBy,
-      doc
+      doc,
+      getDoc
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -473,4 +474,255 @@
     };
 
     window.openCart = function(){
-      if (cart.length === 0
+      if (cart.length === 0) { showToast('⚠️ Adicione itens primeiro!'); return; }
+      $("cart-modal").classList.add("active");
+    };
+    window.closeCart = function(){ $("cart-modal").classList.remove("active"); };
+
+    window.openCheckout = function(){
+      if (cart.length === 0) return;
+      window.closeCart();
+      $("checkout-modal").classList.add("active");
+    };
+    window.closeCheckout = function(){ $("checkout-modal").classList.remove("active"); };
+
+    window.closeSuccess = function(){
+      $("success-modal").classList.remove("active");
+      cart = [];
+      updateCartUI();
+    };
+
+    document.querySelectorAll('.modal-overlay').forEach(modal => {
+      modal.addEventListener('click', function(e) {
+        if (e.target === this) this.classList.remove('active');
+      });
+    });
+
+    $("customer-cep").addEventListener('input', function(e) {
+      let v = e.target.value.replace(/\D/g, '');
+      if (v.length > 5) v = v.slice(0,5) + '-' + v.slice(5,8);
+      e.target.value = v;
+    });
+
+    $("checkout-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      $("checkout-error").classList.add("hidden");
+
+      try {
+        if (!cart.length) { showToast("Carrinho vazio."); return; }
+
+        const name = $("customer-name").value.trim();
+        const phone = $("customer-phone").value.trim();
+        const cep = $("customer-cep").value.trim();
+        const address = $("customer-address").value.trim();
+        const neighborhood = $("customer-neighborhood").value.trim();
+        const city = $("customer-city").value.trim();
+        const complement = $("customer-complement").value.trim();
+
+        const total = cart.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+        const addressLine = `${address} — ${neighborhood}, ${city} • CEP ${cep}${complement ? " • " + complement : ""}`;
+
+        const orderDoc = {
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+          status: "new",
+          customer: { name, phone, addressLine },
+          items: cart.map(i => ({ name: i.name, qty: i.quantity, price: i.price, emoji: i.emoji })),
+          total: Number(total)
+        };
+
+        await addDoc(collection(db, "orders"), orderDoc);
+
+        let msg = `🍽️ *NOVO PEDIDO*\\n\\n`;
+        msg += `👤 *Cliente:* ${name}\\n`;
+        msg += `📱 *Telefone:* ${phone}\\n\\n`;
+        msg += `📍 *Endereço:*\\n${addressLine}\\n\\n`;
+        msg += `🛒 *Itens:*\\n`;
+        orderDoc.items.forEach(i => {
+          msg += `\\n${i.emoji || "🍽️"} ${i.qty}x ${i.name} — R$ ${(i.price * i.qty).toFixed(2)}`;
+        });
+        msg += `\\n\\n💰 *TOTAL: R$ ${orderDoc.total.toFixed(2)}*\\n`;
+        msg += `\\n⏱️ Tempo estimado: 45min a 1:20h`;
+
+        const waUrl = `https://wa.me/${digits(RESTAURANT_PHONE)}?text=${encodeURIComponent(msg)}`;
+
+        window.closeCheckout();
+        $("success-modal").classList.add("active");
+        setTimeout(() => window.open(waUrl, "_blank", "noopener,noreferrer"), 450);
+
+        $("checkout-form").reset();
+        cart = [];
+        updateCartUI();
+      } catch (err) {
+        console.error(err);
+        $("checkout-error").classList.remove("hidden");
+      }
+    });
+
+    // ==============================
+    // PRODUTOS (Firestore -> products)
+    // ==============================
+    function escapeHtml(str){
+      return String(str ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function moneyBR(value){
+      const n = Number(value || 0);
+      return n.toLocaleString("pt-BR", { style:"currency", currency:"BRL" });
+    }
+
+    function normalizeCategory(cat){
+      const c = String(cat || "").trim().toLowerCase();
+      if (c.includes("lanche")) return "Lanches";
+      if (c.includes("pizza")) return "Pizzas";
+      if (c.includes("bebida")) return "Bebidas";
+      if (c.includes("sobrem")) return "Sobremesas";
+      return "Lanches";
+    }
+
+    function renderProductCard(p){
+      const emoji = p.emoji || "🍽️";
+      const nameText = escapeHtml(p.name || "Produto");
+      const desc = escapeHtml(p.description || "");
+      const price = Number(p.price || 0);
+
+      const safeName = (p.name || "Produto").replaceAll("\\", "\\\\").replaceAll("'", "\\'");
+      const safeEmoji = (emoji || "🍽️").replaceAll("\\", "\\\\").replaceAll("'", "\\'");
+
+      if (normalizeCategory(p.category) === "Bebidas") {
+        return `
+          <div class="menu-item rounded-xl p-3 text-center"
+               onclick="addToCart('${safeName}', ${price}, '${safeEmoji}')"
+               style="background:linear-gradient(135deg,#262626 0%,#1f1f1f 100%);border:1px solid #404040;">
+            <div class="w-full aspect-[4/3] rounded-lg overflow-hidden mb-2" style="background:#0f0f0f;">
+              ${p.imageUrl
+                ? `<img src="${escapeHtml(p.imageUrl)}" alt="${nameText}" class="w-full h-full object-cover" loading="lazy">`
+                : `<div class="w-full h-full flex items-center justify-center text-3xl">${emoji}</div>`}
+            </div>
+            <h3 class="font-medium" style="color:#fef3c7;">${nameText}</h3>
+            <span class="text-lg font-bold" style="color:#d97706;">${moneyBR(price)}</span>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="menu-item rounded-xl p-4"
+             onclick="addToCart('${safeName}', ${price}, '${safeEmoji}')"
+             style="background:linear-gradient(135deg,#262626 0%,#1f1f1f 100%);border:1px solid #404040;">
+          <div class="flex gap-4">
+            <div class="w-24 h-24 rounded-xl overflow-hidden flex items-center justify-center"
+                 style="background:#0f0f0f; border:1px solid #404040;">
+              ${p.imageUrl
+                ? `<img src="${escapeHtml(p.imageUrl)}" alt="${nameText}" class="w-full h-full object-cover" loading="lazy">`
+                : `<span class="text-4xl">${emoji}</span>`}
+            </div>
+
+            <div class="flex-1">
+              <div class="flex justify-between items-start gap-3">
+                <h3 class="font-semibold text-lg" style="color:#fef3c7;">${nameText}</h3>
+                <span class="text-2xl font-bold" style="color:#d97706;">${moneyBR(price)}</span>
+              </div>
+
+              ${desc ? `<p class="text-sm mt-1 opacity-80" style="color:#d6d3d1;">${desc}</p>` : ""}
+              <p class="text-xs mt-2" style="color:#9ca3af;">Clique para adicionar ao carrinho</p>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function clearSections(){
+      ["Lanches","Pizzas","Bebidas","Sobremesas"].forEach(cat => {
+        const el = document.getElementById(`products-${cat}`);
+        if (el) el.innerHTML = "";
+      });
+    }
+
+    function mountProducts(list){
+      clearSections();
+
+      const active = list.filter(p => p.isActive !== false);
+
+      for (const p of active) {
+        const cat = normalizeCategory(p.category);
+        const container = document.getElementById(`products-${cat}`);
+        if (!container) continue;
+        container.insertAdjacentHTML("beforeend", renderProductCard(p));
+      }
+    }
+
+    function startProductsRealtime(){
+      const qy = query(collection(db, "products"), orderBy("createdAt", "desc"));
+      onSnapshot(qy, (snap) => {
+        const products = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        mountProducts(products);
+      }, (err) => {
+        console.error("Falha ao ler products:", err);
+      });
+    }
+
+    // ==============================
+    // TITULOS DAS CATEGORIAS (Firestore -> settings/menu)
+    // ==============================
+    async function loadCategoryTitles(){
+      try{
+        const ref = doc(db, "settings", "menu");
+        const snap = await getDoc(ref);
+        if(!snap.exists()) return;
+
+        const data = snap.data() || {};
+        const titles = data.categoryTitles || data.categoryLabels || {};
+
+        const setTitle = (key, elId) => {
+          const el = document.getElementById(elId);
+          if (!el) return;
+          const v = titles[key];
+          if (v && String(v).trim()) el.textContent = String(v).trim();
+        };
+
+        setTitle("Lanches", "title-Lanches");
+        setTitle("Pizzas", "title-Pizzas");
+        setTitle("Bebidas", "title-Bebidas");
+        setTitle("Sobremesas", "title-Sobremesas");
+      } catch(e){
+        console.error("Erro ao carregar títulos:", e);
+      }
+    }
+
+    // ====== GAME ======
+    const GAME_URL = "https://subway-surfers.gg/";
+
+    window.openGame = function(){
+      const modal = $("game-modal");
+      const iframe = $("game-iframe");
+      const fallback = $("game-fallback");
+      const openTab = $("game-open-tab");
+
+      openTab.href = GAME_URL;
+
+      modal.classList.add("active");
+      fallback.classList.add("hidden");
+      iframe.src = GAME_URL;
+
+      setTimeout(() => {
+        fallback.classList.remove("hidden");
+      }, 1200);
+    };
+
+    window.closeGame = function(){
+      $("game-modal").classList.remove("active");
+      $("game-iframe").src = "";
+    };
+
+    // INIT
+    updateCartUI();
+    startProductsRealtime();
+    loadCategoryTitles();
+  </script>
+</body>
+</html>
