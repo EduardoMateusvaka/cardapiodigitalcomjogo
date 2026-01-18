@@ -5,6 +5,47 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Painel do Restaurante (Admin)</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <section id="view-orders" class="hidden">
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div class="lg:col-span-4 space-y-6">
+      <div class="card p-5">
+        <h2 class="text-xl font-bold title" style="color:#fde68a;">Pedidos em tempo real</h2>
+        <p class="text-sm muted mt-2">Coleção: <b>restaurants/{id}/orders</b></p>
+        <div class="divider my-5"></div>
+
+        <label class="text-sm font-semibold" style="color:#fde68a;">Filtrar status</label>
+        <select id="orders-filter" class="input mt-2">
+          <option value="all">Todos</option>
+          <option value="new">Novos</option>
+          <option value="accepted">Aceitos</option>
+          <option value="preparing">Preparando</option>
+          <option value="ready">Pronto</option>
+          <option value="delivered">Entregue</option>
+          <option value="canceled">Cancelado</option>
+        </select>
+
+        <p id="orders-error" class="text-xs mt-3 hidden" style="color:#ef4444;"></p>
+      </div>
+    </div>
+
+    <div class="lg:col-span-8 space-y-6">
+      <div class="card p-5">
+        <div class="flex items-center justify-between gap-3">
+          <h2 class="text-xl font-bold title" style="color:#fde68a;">Lista de Pedidos</h2>
+          <span id="orders-count" class="badge badge-new">📦 0</span>
+        </div>
+
+        <div id="orders-empty" class="mt-6 p-6 rounded-xl bg-neutral-950 border border-neutral-800 text-center hidden">
+          <p class="text-lg font-bold" style="color:#fde68a;">Nenhum pedido ainda</p>
+          <p class="text-sm muted mt-1">Quando alguém pedir, aparece aqui.</p>
+        </div>
+
+        <div id="orders-list" class="mt-5 space-y-4"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -252,6 +293,22 @@
   </div>
 
   <script type="module">
+    import {
+  getFirestore,
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  doc,
+  getDoc,
+  updateDoc,
+  serverTimestamp,
+  addDoc,
+  deleteDoc,
+  setDoc,
+  limit
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
       getFirestore, collection, query, orderBy, onSnapshot,
@@ -411,11 +468,14 @@
     // Tabs
     // =======================
     function setTab(tab){
-      const tabs = ["products","categories","settings"];
+      const tabs = ["products","categories","settings","orders"];
+      $("tab-orders").addEventListener("click", () => setTab("orders"));
       tabs.forEach(t => {
         $("tab-"+t).classList.toggle("active", t === tab);
         $("view-"+t).classList.toggle("hidden", t !== tab);
       });
+      <button id="tab-orders" class="tab">📦 Pedidos</button>
+
     }
     $("tab-products").addEventListener("click", () => setTab("products"));
     $("tab-categories").addEventListener("click", () => setTab("categories"));
