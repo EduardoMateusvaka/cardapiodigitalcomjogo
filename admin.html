@@ -22,10 +22,6 @@
     .btn-red { background: linear-gradient(135deg,#ef4444 0%,#b91c1c 100%); color:#170505; }
     .badge { border-radius: 999px; padding: 6px 10px; font-weight: 800; font-size: 12px; display:inline-flex; align-items:center; gap:6px; }
     .badge-new { background: rgba(217,119,6,.18); border:1px solid rgba(217,119,6,.35); color:#fde68a; }
-    .badge-prep { background: rgba(59,130,246,.18); border:1px solid rgba(59,130,246,.35); color:#bfdbfe; }
-    .badge-out { background: rgba(34,197,94,.18); border:1px solid rgba(34,197,94,.35); color:#bbf7d0; }
-    .badge-done { background: rgba(168,85,247,.18); border:1px solid rgba(168,85,247,.35); color:#e9d5ff; }
-    .badge-cancel { background: rgba(239,68,68,.16); border:1px solid rgba(239,68,68,.35); color:#fecaca; }
     .title { font-family:'Playfair Display', serif; }
     .input { width:100%; background:#0f0f0f; border:1px solid #2c2c2c; border-radius: 14px; padding: 12px 14px; color:#fef3c7; }
     .muted { color:#a3a3a3; }
@@ -38,62 +34,61 @@
 <body class="h-full bg-black text-white">
 
   <!-- LOGIN OVERLAY -->
- <div id="login-overlay" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 p-4">
-  <div class="card w-full max-w-md p-6">
-    <h2 class="text-2xl font-extrabold title" style="color:#fde68a;">🔒 Painel do Restaurante</h2>
-    <p class="text-sm muted mt-1">Entre ou crie sua conta (cada restaurante tem seu próprio painel).</p>
+  <div id="login-overlay" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 p-4">
+    <div class="card w-full max-w-md p-6">
+      <h2 class="text-2xl font-extrabold title" style="color:#fde68a;">🔒 Painel do Restaurante</h2>
+      <p class="text-sm muted mt-1">Entre ou crie sua conta (cada restaurante tem seu próprio painel).</p>
 
-    <div class="grid grid-cols-2 gap-2 mt-4">
-      <button id="mode-login" class="btn btn-primary w-full">Entrar</button>
-      <button id="mode-register" class="btn btn-dark w-full">Criar conta</button>
-    </div>
+      <div class="grid grid-cols-2 gap-2 mt-4">
+        <button id="mode-login" class="btn btn-primary w-full">Entrar</button>
+        <button id="mode-register" class="btn btn-dark w-full">Criar conta</button>
+      </div>
 
-    <div class="mt-5 space-y-3">
-      <!-- CAMPOS DE CADASTRO (aparecem só no modo register) -->
-      <div id="register-extra" class="hidden space-y-3">
-        <div>
-          <label class="text-sm font-semibold" style="color:#fde68a;">Nome do Restaurante</label>
-          <input id="reg-rest-name" class="input mt-2" type="text" placeholder="Ex: Sabor & Arte" />
-        </div>
+      <div class="mt-5 space-y-3">
 
-        <div class="grid grid-cols-2 gap-2">
+        <!-- CAMPOS DE CADASTRO (aparecem só no modo register) -->
+        <div id="register-extra" class="hidden space-y-3">
           <div>
-            <label class="text-sm font-semibold" style="color:#fde68a;">Nome do proprietário</label>
-            <input id="reg-owner-name" class="input mt-2" type="text" placeholder="Ex: João Silva" />
+            <label class="text-sm font-semibold" style="color:#fde68a;">Nome do Restaurante</label>
+            <input id="reg-rest-name" class="input mt-2" type="text" placeholder="Ex: Sabor & Arte" />
           </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-sm font-semibold" style="color:#fde68a;">Nome do proprietário</label>
+              <input id="reg-owner-name" class="input mt-2" type="text" placeholder="Ex: João Silva" />
+            </div>
+            <div>
+              <label class="text-sm font-semibold" style="color:#fde68a;">CPF</label>
+              <input id="reg-owner-cpf" class="input mt-2" type="text" placeholder="000.000.000-00" />
+            </div>
+          </div>
+
           <div>
-            <label class="text-sm font-semibold" style="color:#fde68a;">CPF</label>
-            <input id="reg-owner-cpf" class="input mt-2" type="text" placeholder="000.000.000-00" />
+            <label class="text-sm font-semibold" style="color:#fde68a;">Telefone (WhatsApp)</label>
+            <input id="reg-phone" class="input mt-2" type="tel" placeholder="(11) 99999-9999" />
           </div>
+
+          <p class="text-xs muted">
+            Ao criar, vamos gerar um ID único do restaurante e salvar no Firebase.
+          </p>
+        </div>
+
+        <!-- EMAIL/SENHA (sempre visível) -->
+        <div>
+          <label class="text-sm font-semibold" style="color:#fde68a;">Email</label>
+          <input id="login-email" class="input mt-2" type="email" placeholder="restaurante@email.com" autocomplete="username" />
         </div>
 
         <div>
-          <label class="text-sm font-semibold" style="color:#fde68a;">Telefone (WhatsApp)</label>
-          <input id="reg-phone" class="input mt-2" type="tel" placeholder="(11) 99999-9999" />
+          <label class="text-sm font-semibold" style="color:#fde68a;">Senha</label>
+          <input id="login-pass" class="input mt-2" type="password" placeholder="********" autocomplete="current-password" />
         </div>
-      </div>
 
-      <!-- EMAIL/SENHA (sempre visível) -->
-      <div>
-        <label class="text-sm font-semibold" style="color:#fde68a;">Email</label>
-        <input id="login-email" class="input mt-2" type="email" placeholder="restaurante@email.com" autocomplete="username" />
-      </div>
+        <button id="submit-auth" class="btn btn-primary w-full mt-2">Entrar</button>
 
-      <div>
-        <label class="text-sm font-semibold" style="color:#fde68a;">Senha</label>
-        <input id="login-pass" class="input mt-2" type="password" placeholder="********" autocomplete="current-password" />
-      </div>
-
-      <button id="submit-auth" class="btn btn-primary w-full mt-2">Entrar</button>
-
-      <p id="login-error" class="text-sm mt-2 hidden" style="color:#ef4444;">Email ou senha inválidos.</p>
-      <p id="register-error" class="text-sm mt-2 hidden" style="color:#ef4444;">Erro ao criar conta.</p>
-    </div>
-  </div>
-</div>
-
-</div>
-
+        <p id="login-error" class="text-sm mt-2 hidden" style="color:#ef4444;">Email ou senha inválidos.</p>
+        <p id="register-error" class="text-sm mt-2 hidden" style="color:#ef4444;">Erro ao criar conta.</p>
       </div>
     </div>
   </div>
@@ -105,84 +100,32 @@
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div>
             <h1 class="text-2xl md:text-3xl font-bold title" style="color:#fde68a;">Painel do Restaurante</h1>
-            <p class="text-sm muted">Pedidos + Produtos (Firebase)</p>
+            <p id="rest-indicator" class="text-sm muted">Carregando restaurante…</p>
           </div>
           <div class="flex flex-wrap gap-2">
-            <button id="btn-refresh" class="btn btn-dark">🔄 Atualizar</button>
             <button id="btn-logout" class="btn btn-red">Sair</button>
           </div>
         </div>
 
         <!-- Tabs -->
         <div class="flex flex-wrap gap-2">
-          <button id="tab-orders" class="tab active">🧾 Pedidos</button>
-          <button id="tab-products" class="tab">🍔 Produtos</button>
+          <button id="tab-products" class="tab active">🍔 Produtos</button>
           <button id="tab-categories" class="tab">📝 Categorias</button>
-          <button id="tab-dashboard" class="tab">📊 Dashboard</button>
+          <button id="tab-settings" class="tab">⚙️ Dados do Restaurante</button>
         </div>
       </div>
     </header>
 
     <main class="max-w-7xl mx-auto px-4 py-6">
 
-      <!-- ORDERS VIEW -->
-      <section id="view-orders" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div class="lg:col-span-8 space-y-6">
-          <div class="card p-5">
-            <div class="flex flex-col md:flex-row md:items-end gap-4">
-              <div class="flex-1">
-                <label class="text-sm font-semibold" style="color:#fde68a;">Buscar (nome / telefone / item)</label>
-                <input id="search" class="input mt-2" placeholder="Ex: João, 1199..., Smash..." />
-              </div>
-
-              <div class="w-full md:w-56">
-                <label class="text-sm font-semibold" style="color:#fde68a;">Status</label>
-                <select id="filter-status" class="input mt-2">
-                  <option value="all">Todos</option>
-                  <option value="new">Novo</option>
-                  <option value="preparing">Preparando</option>
-                  <option value="out_for_delivery">Saiu p/ entrega</option>
-                  <option value="done">Feito</option>
-                  <option value="cancelled">Cancelado</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div class="card p-5">
-            <div class="flex items-center justify-between gap-3">
-              <h2 class="text-xl font-bold title" style="color:#fde68a;">Fila de Pedidos</h2>
-              <span id="orders-count" class="badge badge-new">🧾 0 pedido(s)</span>
-            </div>
-
-            <div id="orders-empty" class="mt-6 p-6 rounded-xl bg-neutral-950 border border-neutral-800 text-center hidden">
-              <p class="text-lg font-bold" style="color:#fde68a;">Nenhum pedido ainda</p>
-              <p class="text-sm muted mt-1">Quando o cliente enviar, ele aparece aqui.</p>
-            </div>
-
-            <div id="orders-list" class="mt-5 space-y-4"></div>
-          </div>
-        </div>
-
-        <div class="lg:col-span-4 space-y-6">
-          <div class="card p-5">
-            <h2 class="text-xl font-bold title" style="color:#fde68a;">Ações rápidas</h2>
-            <p class="text-sm muted mt-2">
-              Dica: clique em “Abrir WhatsApp” em um pedido para responder rápido.
-            </p>
-            <div class="divider my-5"></div>
-            <p class="text-xs muted">Obs.: WhatsApp oficial (API) precisa de backend. Aqui abrimos o WhatsApp com mensagem pronta.</p>
-          </div>
-        </div>
-      </section>
-
       <!-- PRODUCTS VIEW -->
-      <section id="view-products" class="hidden">
+      <section id="view-products">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div class="lg:col-span-4 space-y-6">
             <div class="card p-5">
               <h2 class="text-xl font-bold title" style="color:#fde68a;">Gerenciar Produtos</h2>
-              <p class="text-sm muted mt-2">Tudo que você criar/editar aqui fica salvo no Firestore (coleção <b>products</b>).</p>
+              <p class="text-sm muted mt-2">Coleção: <b>restaurants/{id}/products</b></p>
+
               <div class="divider my-5"></div>
 
               <button id="btn-add-product" class="btn btn-primary w-full">➕ Adicionar Produto</button>
@@ -213,130 +156,84 @@
         </div>
       </section>
 
-      <!-- CATEGORIES VIEW (NOVO) -->
+      <!-- CATEGORIES VIEW -->
       <section id="view-categories" class="hidden">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div class="lg:col-span-6 space-y-6">
-            <div class="card p-5">
-              <h2 class="text-xl font-bold title" style="color:#fde68a;">Renomear Categorias (títulos do cardápio)</h2>
-              <p class="text-sm muted mt-2">
-                Isso muda <b>apenas o nome que o cliente vê</b> no cardápio.<br>
-                Não muda a categoria interna dos produtos (para não quebrar o sistema).
-              </p>
+        <div class="card p-5 max-w-2xl">
+          <h2 class="text-xl font-bold title" style="color:#fde68a;">Renomear Categorias (títulos)</h2>
+          <p class="text-sm muted mt-2">Documento: <b>restaurants/{id}/settings/menu</b></p>
 
-              <div class="divider my-5"></div>
+          <div class="divider my-5"></div>
 
-              <div class="space-y-3">
-                <div>
-                  <label class="text-sm font-semibold" style="color:#fde68a;">Lanches (título)</label>
-                  <input id="cat-title-Lanches" class="input mt-2" placeholder="Ex: Hambúrgueres" />
-                </div>
-
-                <div>
-                  <label class="text-sm font-semibold" style="color:#fde68a;">Pizzas (título)</label>
-                  <input id="cat-title-Pizzas" class="input mt-2" placeholder="Ex: Massas" />
-                </div>
-
-                <div>
-                  <label class="text-sm font-semibold" style="color:#fde68a;">Bebidas (título)</label>
-                  <input id="cat-title-Bebidas" class="input mt-2" placeholder="Ex: Drinks" />
-                </div>
-
-                <div>
-                  <label class="text-sm font-semibold" style="color:#fde68a;">Sobremesas (título)</label>
-                  <input id="cat-title-Sobremesas" class="input mt-2" placeholder="Ex: Doces" />
-                </div>
-              </div>
-
-              <div class="divider my-5"></div>
-
-              <div class="flex gap-2">
-                <button id="btn-cat-save" class="btn btn-primary w-full">💾 Salvar Títulos</button>
-                <button id="btn-cat-reset" class="btn btn-dark">↩️ Reset</button>
-              </div>
-
-              <p id="cat-msg" class="text-sm mt-3 hidden"></p>
+          <div class="space-y-3">
+            <div>
+              <label class="text-sm font-semibold" style="color:#fde68a;">Lanches</label>
+              <input id="cat-title-Lanches" class="input mt-2" />
+            </div>
+            <div>
+              <label class="text-sm font-semibold" style="color:#fde68a;">Pizzas</label>
+              <input id="cat-title-Pizzas" class="input mt-2" />
+            </div>
+            <div>
+              <label class="text-sm font-semibold" style="color:#fde68a;">Bebidas</label>
+              <input id="cat-title-Bebidas" class="input mt-2" />
+            </div>
+            <div>
+              <label class="text-sm font-semibold" style="color:#fde68a;">Sobremesas</label>
+              <input id="cat-title-Sobremesas" class="input mt-2" />
             </div>
           </div>
 
-          <div class="lg:col-span-6 space-y-6">
-            <div class="card p-5">
-              <h3 class="text-lg font-bold title" style="color:#fde68a;">Como aparece no cliente</h3>
-              <p class="text-sm muted mt-2">
-                No seu <b>index.html</b>, você vai ler <b>settings/menu</b> e trocar os textos dos títulos.
-                Se você quiser, eu também te entrego o trecho do index pronto.
-              </p>
-              <div class="divider my-5"></div>
-              <p class="text-sm" style="color:#fef3c7;">
-                ✅ Exemplo: “Pizzas” ➜ “Massas”<br>
-                ✅ Exemplo: “Lanches” ➜ “Almoço Executivo”
-              </p>
-            </div>
+          <div class="divider my-5"></div>
+
+          <div class="flex gap-2">
+            <button id="btn-cat-save" class="btn btn-primary w-full">💾 Salvar</button>
+            <button id="btn-cat-reset" class="btn btn-dark">↩️ Reset</button>
           </div>
+
+          <p id="cat-msg" class="text-sm mt-3 hidden"></p>
         </div>
       </section>
 
-      <!-- DASHBOARD VIEW -->
-      <section id="view-dashboard" class="hidden">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div class="lg:col-span-12 space-y-6">
-            <div class="card p-5">
-              <h2 class="text-xl font-bold title" style="color:#fde68a;">Dashboard</h2>
-              <p class="text-sm muted mt-2">Métricas calculadas em tempo real com base em <b>orders</b>.</p>
+      <!-- SETTINGS VIEW -->
+      <section id="view-settings" class="hidden">
+        <div class="card p-5 max-w-2xl">
+          <h2 class="text-xl font-bold title" style="color:#fde68a;">Dados do Restaurante</h2>
+          <p class="text-sm muted mt-2">Documento: <b>restaurants/{id}</b></p>
 
-              <div class="divider my-5"></div>
+          <div class="divider my-5"></div>
 
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="p-4 rounded-xl bg-neutral-950 border border-neutral-800">
-                  <p class="text-xs muted">Total de pedidos</p>
-                  <p id="m-total-orders" class="text-3xl font-extrabold" style="color:#fde68a;">0</p>
-                </div>
+          <div class="space-y-3">
+            <div>
+              <label class="text-sm font-semibold" style="color:#fde68a;">Nome do restaurante</label>
+              <input id="set-rest-name" class="input mt-2" placeholder="Ex: Sabor & Arte" />
+            </div>
 
-                <div class="p-4 rounded-xl bg-neutral-950 border border-neutral-800">
-                  <p class="text-xs muted">Faturamento (Feitos)</p>
-                  <p id="m-revenue" class="text-3xl font-extrabold" style="color:#22c55e;">R$ 0,00</p>
-                </div>
+            <div>
+              <label class="text-sm font-semibold" style="color:#fde68a;">URL da logo (círculo do topo)</label>
+              <input id="set-logo-url" class="input mt-2" placeholder="https://..." />
+            </div>
 
-                <div class="p-4 rounded-xl bg-neutral-950 border border-neutral-800">
-                  <p class="text-xs muted">Ticket médio (Feitos)</p>
-                  <p id="m-ticket" class="text-3xl font-extrabold" style="color:#d97706;">R$ 0,00</p>
-                </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="text-sm font-semibold" style="color:#fde68a;">Dias</label>
+                <input id="set-days" class="input mt-2" placeholder="Seg a Dom" />
               </div>
-
-              <div class="divider my-5"></div>
-
-              <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
-                <div class="p-3 rounded-xl bg-neutral-950 border border-neutral-800 text-center">
-                  <p class="text-xs muted">Novos</p>
-                  <p id="m-new" class="text-2xl font-extrabold" style="color:#fde68a;">0</p>
-                </div>
-                <div class="p-3 rounded-xl bg-neutral-950 border border-neutral-800 text-center">
-                  <p class="text-xs muted">Preparando</p>
-                  <p id="m-prep" class="text-2xl font-extrabold" style="color:#3b82f6;">0</p>
-                </div>
-                <div class="p-3 rounded-xl bg-neutral-950 border border-neutral-800 text-center">
-                  <p class="text-xs muted">Saiu</p>
-                  <p id="m-out" class="text-2xl font-extrabold" style="color:#22c55e;">0</p>
-                </div>
-                <div class="p-3 rounded-xl bg-neutral-950 border border-neutral-800 text-center">
-                  <p class="text-xs muted">Feitos</p>
-                  <p id="m-done" class="text-2xl font-extrabold" style="color:#a855f7;">0</p>
-                </div>
-                <div class="p-3 rounded-xl bg-neutral-950 border border-neutral-800 text-center">
-                  <p class="text-xs muted">Cancelados</p>
-                  <p id="m-cancel" class="text-2xl font-extrabold" style="color:#ef4444;">0</p>
-                </div>
+              <div>
+                <label class="text-sm font-semibold" style="color:#fde68a;">Horário</label>
+                <input id="set-hours" class="input mt-2" placeholder="11h às 23h" />
               </div>
             </div>
 
-            <div class="card p-5">
-              <h3 class="text-lg font-bold title" style="color:#fde68a;">Observação</h3>
-              <p class="text-sm muted mt-2">
-                Se “Produtos” não salva, 99% é regra do Firestore ou você não está logado no Admin.
-                Com as regras corretas, os produtos ficam na coleção <b>products</b>.
-              </p>
+            <div>
+              <label class="text-sm font-semibold" style="color:#fde68a;">WhatsApp do restaurante (somente números)</label>
+              <input id="set-whatsapp" class="input mt-2" placeholder="5511999999999" />
             </div>
           </div>
+
+          <div class="divider my-5"></div>
+
+          <button id="btn-settings-save" class="btn btn-primary w-full">💾 Salvar dados</button>
+          <p id="settings-msg" class="text-sm mt-3 hidden"></p>
         </div>
       </section>
 
@@ -344,16 +241,29 @@
   </div>
 
   <script type="module">
-    // ==============================
-    // FIREBASE (CDN - modular v10.12.2)
-    // ==============================
-   import {
-  getAuth,
-  signInWithEmailAndPassword,
-  onAuthStateChanged,
-  signOut,
-  createUserWithEmailAndPassword
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      query,
+      orderBy,
+      onSnapshot,
+      doc,
+      getDoc,
+      updateDoc,
+      serverTimestamp,
+      addDoc,
+      deleteDoc,
+      setDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    import {
+      getAuth,
+      signInWithEmailAndPassword,
+      onAuthStateChanged,
+      signOut,
+      createUserWithEmailAndPassword
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
     // ✅ SEU firebaseConfig
     const firebaseConfig = {
@@ -368,381 +278,268 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-let AUTH_MODE = "login"; // "login" | "register"
-
-function randomId(prefix="rest_"){
-  return prefix + Math.random().toString(36).slice(2,10) + Math.random().toString(36).slice(2,6);
-}
-
-function showAuthMode(){
-  const isReg = AUTH_MODE === "register";
-  document.getElementById("register-extra").classList.toggle("hidden", !isReg);
-
-  document.getElementById("mode-login").classList.toggle("active", !isReg);
-  document.getElementById("mode-register").classList.toggle("active", isReg);
-
-  document.getElementById("submit-auth").textContent = isReg ? "Criar conta" : "Entrar";
-}
-
-document.getElementById("mode-login").onclick = () => { AUTH_MODE = "login"; showAuthMode(); };
-document.getElementById("mode-register").onclick = () => { AUTH_MODE = "register"; showAuthMode(); };
-showAuthMode();
-
-async function ensureRestaurantForUser(user, restaurantName){
-  // Cria um restaurante novo e associa o UID como owner
-  const restaurantId = randomId();
-  const restRef = doc(db, "restaurants", restaurantId);
-  const memberRef = doc(db, "restaurants", restaurantId, "members", user.uid);
-  const menuRef = doc(db, "restaurants", restaurantId, "settings", "menu");
-
-  await setDoc(restRef, {
-    name: restaurantName || "Meu Restaurante",
-    logoUrl: "",
-    hoursText: "Seg a Dom: 11h às 23h",
-    daysText: "Seg a Dom",
-    whatsappPhone: "",
-    createdAt: serverTimestamp(),
-    ownerUid: user.uid
-  });
-
-  await setDoc(memberRef, {
-    role: "owner",
-    createdAt: serverTimestamp()
-  });
-
-  await setDoc(menuRef, {
-    categoryTitles: {
-      Lanches: "Lanches",
-      Pizzas: "Pizzas",
-      Bebidas: "Bebidas",
-      Sobremesas: "Sobremesas"
-    },
-    updatedAt: serverTimestamp()
-  });
-
-  return restaurantId;
-}
-
-async function doAuth(){
-  document.getElementById("login-error").classList.add("hidden");
-  document.getElementById("register-error").classList.add("hidden");
-
-  const email = (document.getElementById("login-email").value || "").trim();
-  const pass = (document.getElementById("login-pass").value || "").trim();
-
-  try {
-    if(AUTH_MODE === "login"){
-      await signInWithEmailAndPassword(auth, email, pass);
-      return;
-    }
-
-    // register
-    const restaurantName = (document.getElementById("rest-name").value || "").trim();
-    const cred = await createUserWithEmailAndPassword(auth, email, pass);
-
-    // cria restaurante + membership
-    const restaurantId = await ensureRestaurantForUser(cred.user, restaurantName);
-
-    // opcional: mostra pro usuário o link do cardápio
-    alert(`Conta criada!\n\nSeu ID do restaurante é: ${restaurantId}\n\nAbra o cardápio assim:\nindex.html?r=${restaurantId}`);
-  } catch (e) {
-    if(AUTH_MODE === "login"){
-      document.getElementById("login-error").classList.remove("hidden");
-    } else {
-      document.getElementById("register-error").textContent = "Erro ao criar conta: " + (e?.message || "desconhecido");
-      document.getElementById("register-error").classList.remove("hidden");
-    }
-  }
-}
-
-document.getElementById("submit-auth").addEventListener("click", doAuth);
-document.getElementById("login-pass").addEventListener("keydown", (e) => {
-  if(e.key === "Enter") doAuth();
-});
 
     const $ = (id) => document.getElementById(id);
 
-    // ==============================
+    // =======================
+    // UI Auth Mode
+    // =======================
+    let AUTH_MODE = "login"; // "login" | "register"
+
+    function setMode(mode){
+      AUTH_MODE = mode;
+      const isReg = AUTH_MODE === "register";
+      $("register-extra").classList.toggle("hidden", !isReg);
+      $("mode-login").classList.toggle("btn-primary", !isReg);
+      $("mode-login").classList.toggle("btn-dark", isReg);
+      $("mode-register").classList.toggle("btn-primary", isReg);
+      $("mode-register").classList.toggle("btn-dark", !isReg);
+      $("submit-auth").textContent = isReg ? "Criar conta" : "Entrar";
+      $("login-error").classList.add("hidden");
+      $("register-error").classList.add("hidden");
+    }
+
+    $("mode-login").onclick = () => setMode("login");
+    $("mode-register").onclick = () => setMode("register");
+    setMode("login");
+
+    function digits(v){ return String(v || "").replace(/\D/g, ""); }
+
+    function randomId(prefix="rest_"){
+      return prefix + Math.random().toString(36).slice(2,10) + Math.random().toString(36).slice(2,6);
+    }
+
+    async function ensureRestaurantForUser(user, regData){
+      const restaurantId = randomId();
+
+      const restRef = doc(db, "restaurants", restaurantId);
+      const memberRef = doc(db, "restaurants", restaurantId, "members", user.uid);
+      const menuRef = doc(db, "restaurants", restaurantId, "settings", "menu");
+
+      await setDoc(restRef, {
+        name: regData.restaurantName || "Meu Restaurante",
+        logoUrl: "",
+        hoursText: "11h às 23h",
+        daysText: "Seg a Dom",
+        whatsappPhone: digits(regData.phone || ""),
+        ownerUid: user.uid,
+        ownerName: regData.ownerName || "",
+        ownerCpf: regData.ownerCpf || "",
+        ownerPhone: digits(regData.phone || ""),
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+
+      await setDoc(memberRef, {
+        role: "owner",
+        createdAt: serverTimestamp()
+      });
+
+      await setDoc(menuRef, {
+        categoryTitles: {
+          Lanches: "Lanches",
+          Pizzas: "Pizzas",
+          Bebidas: "Bebidas",
+          Sobremesas: "Sobremesas"
+        },
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+
+      // salva no navegador pra esse usuário cair sempre no restaurante dele
+      localStorage.setItem("restaurantId", restaurantId);
+
+      return restaurantId;
+    }
+
+    async function doAuth(){
+      $("login-error").classList.add("hidden");
+      $("register-error").classList.add("hidden");
+
+      const email = ($("login-email").value || "").trim();
+      const pass = ($("login-pass").value || "").trim();
+
+      try {
+        if(AUTH_MODE === "login"){
+          await signInWithEmailAndPassword(auth, email, pass);
+          return;
+        }
+
+        // register
+        const regData = {
+          restaurantName: ($("reg-rest-name").value || "").trim(),
+          ownerName: ($("reg-owner-name").value || "").trim(),
+          ownerCpf: ($("reg-owner-cpf").value || "").trim(),
+          phone: ($("reg-phone").value || "").trim()
+        };
+
+        if(!regData.restaurantName || !regData.ownerName || !regData.ownerCpf || !regData.phone){
+          $("register-error").textContent = "Preencha: restaurante, proprietário, CPF e telefone.";
+          $("register-error").classList.remove("hidden");
+          return;
+        }
+
+        const cred = await createUserWithEmailAndPassword(auth, email, pass);
+        const restaurantId = await ensureRestaurantForUser(cred.user, regData);
+
+        alert(`✅ Conta criada!\n\nSeu ID do restaurante é: ${restaurantId}\n\nAbra o cardápio do seu restaurante assim:\nindex.html?r=${restaurantId}`);
+      } catch (e) {
+        if(AUTH_MODE === "login"){
+          $("login-error").classList.remove("hidden");
+        } else {
+          $("register-error").textContent = "Erro ao criar conta: " + (e?.message || "desconhecido");
+          $("register-error").classList.remove("hidden");
+        }
+      }
+    }
+
+    $("submit-auth").addEventListener("click", doAuth);
+    $("login-pass").addEventListener("keydown", (e) => { if(e.key === "Enter") doAuth(); });
+
+    // =======================
     // Tabs
-    // ==============================
+    // =======================
     function setTab(tab){
-      const tabs = ["orders","products","categories","dashboard"];
+      const tabs = ["products","categories","settings"];
       tabs.forEach(t => {
-        document.getElementById(`tab-${t}`).classList.toggle("active", t === tab);
-        document.getElementById(`view-${t}`).classList.toggle("hidden", t !== tab);
+        $("tab-"+t).classList.toggle("active", t === tab);
+        $("view-"+t).classList.toggle("hidden", t !== tab);
       });
     }
-    $("tab-orders").addEventListener("click", () => setTab("orders"));
     $("tab-products").addEventListener("click", () => setTab("products"));
     $("tab-categories").addEventListener("click", () => setTab("categories"));
-    $("tab-dashboard").addEventListener("click", () => setTab("dashboard"));
+    $("tab-settings").addEventListener("click", () => setTab("settings"));
 
-    // ==============================
-    // Helpers
-    // ==============================
-    function moneyBR(value){
-      const n = Number(value || 0);
-      return n.toLocaleString("pt-BR", { style:"currency", currency:"BRL" });
+    // =======================
+    // Restaurant context
+    // =======================
+    function getRestaurantId(){
+      const url = new URL(location.href);
+      // permite usar admin.html?r=xxx também
+      return url.searchParams.get("r") || localStorage.getItem("restaurantId") || "";
     }
+
+    let restaurantId = "";
+    function restDoc(){ return doc(db, "restaurants", restaurantId); }
+    function menuDoc(){ return doc(db, "restaurants", restaurantId, "settings", "menu"); }
+    function productsCol(){ return collection(db, "restaurants", restaurantId, "products"); }
+
+    // =======================
+    // Settings
+    // =======================
+    function setSettingsMsg(text, ok=true){
+      $("settings-msg").textContent = text;
+      $("settings-msg").classList.remove("hidden");
+      $("settings-msg").style.color = ok ? "#22c55e" : "#ef4444";
+    }
+
+    async function loadRestaurantSettings(){
+      const snap = await getDoc(restDoc());
+      const data = snap.exists() ? snap.data() : {};
+
+      $("rest-indicator").textContent = `Restaurante: ${data.name || restaurantId}`;
+
+      $("set-rest-name").value = data.name || "";
+      $("set-logo-url").value = data.logoUrl || "";
+      $("set-days").value = data.daysText || "";
+      $("set-hours").value = data.hoursText || "";
+      $("set-whatsapp").value = data.whatsappPhone || "";
+      $("settings-msg").classList.add("hidden");
+    }
+
+    async function saveRestaurantSettings(){
+      try{
+        await setDoc(restDoc(), {
+          name: ($("set-rest-name").value || "").trim(),
+          logoUrl: ($("set-logo-url").value || "").trim(),
+          daysText: ($("set-days").value || "").trim(),
+          hoursText: ($("set-hours").value || "").trim(),
+          whatsappPhone: digits(($("set-whatsapp").value || "").trim()),
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+
+        setSettingsMsg("✅ Dados do restaurante salvos!", true);
+        await loadRestaurantSettings();
+      }catch(e){
+        setSettingsMsg("Erro ao salvar dados do restaurante (verifique rules).", false);
+      }
+    }
+    $("btn-settings-save").addEventListener("click", saveRestaurantSettings);
+
+    // =======================
+    // Categories titles
+    // =======================
+    function setCatMsg(text, ok=true){
+      $("cat-msg").textContent = text;
+      $("cat-msg").classList.remove("hidden");
+      $("cat-msg").style.color = ok ? "#22c55e" : "#ef4444";
+    }
+
+    async function loadCategoryTitles(){
+      try{
+        const snap = await getDoc(menuDoc());
+        const data = snap.exists() ? snap.data() : {};
+        const titles = data.categoryTitles || {};
+
+        $("cat-title-Lanches").value = titles.Lanches || "Lanches";
+        $("cat-title-Pizzas").value = titles.Pizzas || "Pizzas";
+        $("cat-title-Bebidas").value = titles.Bebidas || "Bebidas";
+        $("cat-title-Sobremesas").value = titles.Sobremesas || "Sobremesas";
+
+        $("cat-msg").classList.add("hidden");
+      } catch (e){
+        setCatMsg("Erro ao carregar títulos. Verifique rules.", false);
+      }
+    }
+
+    async function saveCategoryTitles(){
+      try{
+        await setDoc(menuDoc(), {
+          categoryTitles: {
+            Lanches: ($("cat-title-Lanches").value || "Lanches").trim(),
+            Pizzas: ($("cat-title-Pizzas").value || "Pizzas").trim(),
+            Bebidas: ($("cat-title-Bebidas").value || "Bebidas").trim(),
+            Sobremesas: ($("cat-title-Sobremesas").value || "Sobremesas").trim()
+          },
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+
+        setCatMsg("✅ Títulos salvos! (o index deve ler restaurants/{id}/settings/menu)", true);
+      } catch (e){
+        setCatMsg("Erro ao salvar títulos. Verifique rules.", false);
+      }
+    }
+
+    function resetCategoryTitles(){
+      $("cat-title-Lanches").value = "Lanches";
+      $("cat-title-Pizzas").value = "Pizzas";
+      $("cat-title-Bebidas").value = "Bebidas";
+      $("cat-title-Sobremesas").value = "Sobremesas";
+      $("cat-msg").classList.add("hidden");
+    }
+
+    $("btn-cat-save").addEventListener("click", saveCategoryTitles);
+    $("btn-cat-reset").addEventListener("click", resetCategoryTitles);
+
+    // =======================
+    // Products
+    // =======================
+    let unsubProducts = null;
+    let liveProducts = [];
+
     function escapeHtml(str){
-      return String(str || "")
+      return String(str ?? "")
         .replaceAll("&","&amp;")
         .replaceAll("<","&lt;")
         .replaceAll(">","&gt;")
         .replaceAll('"',"&quot;")
         .replaceAll("'","&#039;");
     }
-    function statusBadge(status){
-      if(status === "new") return `<span class="badge badge-new">🆕 Novo</span>`;
-      if(status === "preparing") return `<span class="badge badge-prep">👨‍🍳 Preparando</span>`;
-      if(status === "out_for_delivery") return `<span class="badge badge-out">🚚 Saiu</span>`;
-      if(status === "done") return `<span class="badge badge-done">✅ Feito</span>`;
-      if(status === "cancelled") return `<span class="badge badge-cancel">⛔ Cancelado</span>`;
-      return `<span class="badge badge-new">🆕 Novo</span>`;
-    }
-    function normalizePhoneBR(phone){
-      const digits = String(phone || "").replace(/\D/g, "");
-      if(!digits) return "";
-      if(digits.startsWith("55")) return digits;
-      return "55" + digits;
-    }
-    function buildWhatsAppLink(order){
-      const items = (order.items||[])
-        .map(i => `- ${i.qty}x ${i.name} (${moneyBR((i.price||0) * (i.qty||0))})`)
-        .join("\n");
-
-      const text =
-`✅ Pedido recebido!
-Cliente: ${order.customer?.name || ""}
-Telefone: ${order.customer?.phone || ""}
-Endereço: ${order.customer?.addressLine || ""}
-
-Itens:
-${items}
-
-Total: ${moneyBR(order.total || 0)}
-
-Responda aqui para confirmar.`;
-
-      const phone = normalizePhoneBR(order.customer?.phone || "");
-      return phone
-        ? `https://wa.me/${phone}?text=${encodeURIComponent(text)}`
-        : `https://wa.me/?text=${encodeURIComponent(text)}`;
-    }
-
-    // ==============================
-    // Auth
-    // ==============================
-    async function doLogin(){
-      $("login-error").classList.add("hidden");
-      const email = ($("login-email").value || "").trim();
-      const pass = ($("login-pass").value || "").trim();
-      try {
-        await signInWithEmailAndPassword(auth, email, pass);
-      } catch (e) {
-        $("login-error").classList.remove("hidden");
-      }
-    }
-    $("login-btn").addEventListener("click", doLogin);
-    $("login-pass").addEventListener("keydown", (e) => { if(e.key === "Enter") doLogin(); });
-    $("btn-logout").addEventListener("click", async () => { await signOut(auth); });
-
-    // ==============================
-    // Orders (Realtime)
-    // ==============================
-    let unsubOrders = null;
-    let liveOrders = [];
-
-    function applyOrderFilters(orders){
-      const q = ($("search").value || "").toLowerCase().trim();
-      const st = $("filter-status").value;
-
-      let list = [...orders];
-      if(st !== "all") list = list.filter(o => o.status === st);
-
-      if(q){
-        list = list.filter(o => {
-          const itemsText = (o.items || []).map(i => i.name).join(" ");
-          return (
-            (o.customer?.name || "").toLowerCase().includes(q) ||
-            (o.customer?.phone || "").toLowerCase().includes(q) ||
-            itemsText.toLowerCase().includes(q)
-          );
-        });
-      }
-      return list;
-    }
-
-    async function setOrderStatus(orderId, status){
-      const ref = doc(db, "orders", orderId);
-      await updateDoc(ref, { status, updatedAt: serverTimestamp() });
-    }
-
-    function renderOrders(){
-      const list = applyOrderFilters(liveOrders);
-      $("orders-count").textContent = `🧾 ${list.length} pedido(s)`;
-      $("orders-empty").classList.toggle("hidden", list.length !== 0);
-
-      $("orders-list").innerHTML = list.map(o => {
-        let createdDate = new Date();
-        if (o.createdAt?.toDate) createdDate = o.createdAt.toDate();
-        else if (typeof o.createdAt === "string") createdDate = new Date(o.createdAt);
-        const time = createdDate.toLocaleString("pt-BR");
-
-        const itemsHtml = (o.items || []).map(i =>
-          `<li class="flex justify-between gap-3">
-            <span class="text-sm" style="color:#fef3c7;">${Number(i.qty||0)}x ${escapeHtml(i.name)}</span>
-            <span class="text-sm font-bold" style="color:#d97706;">${moneyBR((i.price||0) * (i.qty||0))}</span>
-          </li>`
-        ).join("");
-
-        const waLink = buildWhatsAppLink(o);
-        const shortId = (o.id || "").slice(-6).toUpperCase() || "------";
-
-        return `
-          <div class="p-4 rounded-xl bg-neutral-950 border border-neutral-800">
-            <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
-              <div>
-                <div class="flex items-center gap-2 flex-wrap">
-                  <p class="font-extrabold" style="color:#fde68a;">Pedido #${escapeHtml(shortId)}</p>
-                  ${statusBadge(o.status)}
-                </div>
-                <p class="text-sm muted mt-1">${time}</p>
-
-                <div class="mt-3 text-sm">
-                  <p style="color:#fef3c7;"><span class="muted">Cliente:</span> <b>${escapeHtml(o.customer?.name || "—")}</b></p>
-                  <p style="color:#fef3c7;"><span class="muted">Telefone:</span> <b>${escapeHtml(o.customer?.phone || "—")}</b></p>
-                  <p class="mt-2 muted">Endereço:</p>
-                  <p style="color:#fef3c7;">${escapeHtml(o.customer?.addressLine || "—")}</p>
-                </div>
-              </div>
-
-              <div class="min-w-[240px]">
-                <div class="p-3 rounded-xl bg-black border border-neutral-800">
-                  <p class="text-xs muted">Total</p>
-                  <p class="text-2xl font-extrabold" style="color:#d97706;">${moneyBR(o.total || 0)}</p>
-                </div>
-
-                <div class="grid grid-cols-2 gap-2 mt-3">
-                  <button class="btn btn-dark" data-act="prep" data-id="${o.id}">👨‍🍳 Preparando</button>
-                  <button class="btn btn-blue" data-act="out" data-id="${o.id}">🚚 Saiu</button>
-                  <button class="btn btn-green" data-act="done" data-id="${o.id}">✅ Feito</button>
-                  <button class="btn btn-red" data-act="cancel" data-id="${o.id}">⛔ Cancelar</button>
-                </div>
-
-                <a class="btn btn-dark w-full mt-2 block text-center" href="${waLink}" target="_blank" rel="noopener">💬 Abrir WhatsApp</a>
-              </div>
-            </div>
-
-            <div class="divider my-4"></div>
-
-            <div>
-              <p class="text-sm font-bold" style="color:#fde68a;">Itens</p>
-              <ul class="mt-2 space-y-2">${itemsHtml}</ul>
-            </div>
-          </div>
-        `;
-      }).join("");
-
-      $("orders-list").querySelectorAll("button[data-act]").forEach(btn => {
-        btn.addEventListener("click", async () => {
-          const id = btn.getAttribute("data-id");
-          const act = btn.getAttribute("data-act");
-          const map = { prep: "preparing", out: "out_for_delivery", done: "done", cancel: "cancelled" };
-          await setOrderStatus(id, map[act] || "new");
-        });
-      });
-
-      updateDashboard();
-    }
-
-    function startOrdersRealtime(){
-      if(unsubOrders) unsubOrders();
-      const qy = query(collection(db, "orders"), orderBy("createdAt", "desc"));
-      unsubOrders = onSnapshot(qy, (snap) => {
-        liveOrders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        renderOrders();
-      });
-    }
-
-    $("btn-refresh").addEventListener("click", () => renderOrders());
-    $("search").addEventListener("input", () => renderOrders());
-    $("filter-status").addEventListener("change", () => renderOrders());
-
-    // ==============================
-    // Products (Realtime + Edit)
-    // ==============================
-    let unsubProducts = null;
-    let liveProducts = [];
-
     function safeNumber(v){
       const n = Number(String(v ?? "").replace(",", "."));
       return isNaN(n) ? 0 : n;
     }
 
-    async function addProduct(){
-      $("products-error").classList.add("hidden");
-      try{
-        await addDoc(collection(db, "products"), {
-          name: "Novo Produto",
-          description: "Descrição do produto...",
-          price: 0,
-          category: "Lanches",
-          emoji: "🍽️",
-          imageUrl: "",
-          isActive: true,
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp()
-        });
-      } catch(err){
-        $("products-error").textContent = "Erro ao salvar produto. Verifique as regras de /products e se você está logado.";
-        $("products-error").classList.remove("hidden");
-      }
-    }
-
-    async function saveProduct(id){
-      $("products-error").classList.add("hidden");
-      const row = document.querySelector(`[data-prod="${id}"]`);
-      if(!row) return;
-
-      const name = row.querySelector(`[data-f="name"]`).value.trim();
-      const description = row.querySelector(`[data-f="description"]`).value.trim();
-      const category = row.querySelector(`[data-f="category"]`).value.trim() || "Outros";
-      const imageUrl = row.querySelector(`[data-f="imageUrl"]`).value.trim();
-      const emoji = row.querySelector(`[data-f="emoji"]`).value.trim() || "🍽️";
-      const price = safeNumber(row.querySelector(`[data-f="price"]`).value);
-      const isActive = row.querySelector(`[data-f="isActive"]`).checked;
-
-      try{
-        await updateDoc(doc(db, "products", id), {
-          name, description, category, imageUrl, emoji,
-          price: Number(price),
-          isActive,
-          updatedAt: serverTimestamp()
-        });
-      } catch(err){
-        $("products-error").textContent = "Erro ao atualizar produto. Verifique regras de /products.";
-        $("products-error").classList.remove("hidden");
-      }
-    }
-
-    async function removeProduct(id){
-      $("products-error").classList.add("hidden");
-      if(!confirm("Excluir este produto?")) return;
-      try{
-        await deleteDoc(doc(db, "products", id));
-      } catch(err){
-        $("products-error").textContent = "Erro ao excluir produto. Verifique regras de /products.";
-        $("products-error").classList.remove("hidden");
-      }
-    }
-
     function renderProducts(){
-      const listEl = $("products-list");
-      const countEl = $("products-count");
-      const emptyEl = $("products-empty");
-      if(!listEl || !countEl || !emptyEl) return;
-
       const q = ($("prod-search")?.value || "").toLowerCase().trim();
       let list = [...liveProducts];
 
@@ -754,10 +551,10 @@ Responda aqui para confirmar.`;
         );
       }
 
-      countEl.textContent = `🍔 ${list.length}`;
-      emptyEl.classList.toggle("hidden", list.length !== 0);
+      $("products-count").textContent = `🍔 ${list.length}`;
+      $("products-empty").classList.toggle("hidden", list.length !== 0);
 
-      listEl.innerHTML = list.map(p => {
+      $("products-list").innerHTML = list.map(p => {
         const img = p.imageUrl
           ? `<img src="${escapeHtml(p.imageUrl)}" class="w-14 h-14 rounded-xl object-cover border border-neutral-800" />`
           : `<div class="w-14 h-14 rounded-xl bg-neutral-950 border border-neutral-800 flex items-center justify-center text-xl">🖼️</div>`;
@@ -774,7 +571,7 @@ Responda aqui para confirmar.`;
 
                   <div class="grid grid-cols-2 gap-2">
                     <input class="input" data-f="price" value="${escapeHtml(p.price ?? 0)}" placeholder="Preço (ex: 29.90)" />
-                    <input class="input" data-f="category" value="${escapeHtml(p.category||"Outros")}" placeholder="Categoria (Lanches, Pizzas...)" />
+                    <input class="input" data-f="category" value="${escapeHtml(p.category||"Lanches")}" placeholder="Categoria (Lanches, Pizzas...)" />
                   </div>
 
                   <div class="grid grid-cols-2 gap-2">
@@ -798,22 +595,79 @@ Responda aqui para confirmar.`;
         `;
       }).join("");
 
-      listEl.querySelectorAll(`button[data-act="save"]`).forEach(btn => {
+      $("products-list").querySelectorAll(`button[data-act="save"]`).forEach(btn => {
         btn.onclick = () => saveProduct(btn.dataset.id);
       });
-      listEl.querySelectorAll(`button[data-act="del"]`).forEach(btn => {
+      $("products-list").querySelectorAll(`button[data-act="del"]`).forEach(btn => {
         btn.onclick = () => removeProduct(btn.dataset.id);
       });
     }
 
+    async function addProduct(){
+      $("products-error").classList.add("hidden");
+      try{
+        await addDoc(productsCol(), {
+          name: "Novo Produto",
+          description: "Descrição do produto...",
+          price: 0,
+          category: "Lanches",
+          emoji: "🍽️",
+          imageUrl: "",
+          isActive: true,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        });
+      } catch(err){
+        $("products-error").textContent = "Erro ao salvar produto. Verifique rules /restaurants/{id}/products.";
+        $("products-error").classList.remove("hidden");
+      }
+    }
+
+    async function saveProduct(id){
+      $("products-error").classList.add("hidden");
+      const row = document.querySelector(`[data-prod="${id}"]`);
+      if(!row) return;
+
+      const name = row.querySelector(`[data-f="name"]`).value.trim();
+      const description = row.querySelector(`[data-f="description"]`).value.trim();
+      const category = row.querySelector(`[data-f="category"]`).value.trim() || "Lanches";
+      const imageUrl = row.querySelector(`[data-f="imageUrl"]`).value.trim();
+      const emoji = row.querySelector(`[data-f="emoji"]`).value.trim() || "🍽️";
+      const price = safeNumber(row.querySelector(`[data-f="price"]`).value);
+      const isActive = row.querySelector(`[data-f="isActive"]`).checked;
+
+      try{
+        await updateDoc(doc(db, "restaurants", restaurantId, "products", id), {
+          name, description, category, imageUrl, emoji,
+          price: Number(price),
+          isActive,
+          updatedAt: serverTimestamp()
+        });
+      } catch(err){
+        $("products-error").textContent = "Erro ao atualizar produto. Verifique rules.";
+        $("products-error").classList.remove("hidden");
+      }
+    }
+
+    async function removeProduct(id){
+      $("products-error").classList.add("hidden");
+      if(!confirm("Excluir este produto?")) return;
+      try{
+        await deleteDoc(doc(db, "restaurants", restaurantId, "products", id));
+      } catch(err){
+        $("products-error").textContent = "Erro ao excluir produto. Verifique rules.";
+        $("products-error").classList.remove("hidden");
+      }
+    }
+
     function startProductsRealtime(){
       if(unsubProducts) unsubProducts();
-      const qy = query(collection(db, "products"), orderBy("createdAt", "desc"));
+      const qy = query(productsCol(), orderBy("createdAt", "desc"));
       unsubProducts = onSnapshot(qy, (snap) => {
         liveProducts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         renderProducts();
       }, () => {
-        $("products-error").textContent = "Erro ao carregar produtos. Verifique regras /products e se você está logado.";
+        $("products-error").textContent = "Erro ao carregar produtos. Verifique rules.";
         $("products-error").classList.remove("hidden");
       });
     }
@@ -821,133 +675,34 @@ Responda aqui para confirmar.`;
     $("btn-add-product").addEventListener("click", addProduct);
     $("prod-search").addEventListener("input", renderProducts);
 
-    // ==============================
-    // Categories titles (NOVO)
-    // ==============================
-    const SETTINGS_REF = doc(db, "settings", "menu");
-
-    function setCatMsg(text, ok=true){
-      const el = $("cat-msg");
-      el.textContent = text;
-      el.classList.remove("hidden");
-      el.style.color = ok ? "#22c55e" : "#ef4444";
-    }
-
-    async function loadCategoryTitles(){
-      try{
-        const snap = await getDoc(SETTINGS_REF);
-        const data = snap.exists() ? snap.data() : {};
-        const titles = data.categoryTitles || {};
-
-        $("cat-title-Lanches").value = titles.Lanches || "Lanches";
-        $("cat-title-Pizzas").value = titles.Pizzas || "Pizzas";
-        $("cat-title-Bebidas").value = titles.Bebidas || "Bebidas";
-        $("cat-title-Sobremesas").value = titles.Sobremesas || "Sobremesas";
-
-        $("cat-msg").classList.add("hidden");
-      } catch (e){
-        setCatMsg("Erro ao carregar títulos. Verifique regras de /settings.", false);
-      }
-    }
-
-    async function saveCategoryTitles(){
-      try{
-        const payload = {
-          categoryTitles: {
-            Lanches: ($("cat-title-Lanches").value || "Lanches").trim(),
-            Pizzas: ($("cat-title-Pizzas").value || "Pizzas").trim(),
-            Bebidas: ($("cat-title-Bebidas").value || "Bebidas").trim(),
-            Sobremesas: ($("cat-title-Sobremesas").value || "Sobremesas").trim()
-          },
-          updatedAt: serverTimestamp()
-        };
-
-        // merge para não apagar outros campos
-        await setDoc(SETTINGS_REF, payload, { merge: true });
-        import {
-  getFirestore,
-  collection,
-  query,
-  orderBy,
-  onSnapshot,
-  doc,
-  updateDoc,
-  serverTimestamp,
-  addDoc,
-  deleteDoc,
-  setDoc
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-        setCatMsg("✅ Títulos salvos! Agora o index do cliente precisa ler settings/menu.", true);
-      } catch (e){
-        setCatMsg("Erro ao salvar títulos. Verifique regras de /settings.", false);
-      }
-    }
-
-    function resetCategoryTitles(){
-      $("cat-title-Lanches").value = "Lanches";
-      $("cat-title-Pizzas").value = "Pizzas";
-      $("cat-title-Bebidas").value = "Bebidas";
-      $("cat-title-Sobremesas").value = "Sobremesas";
-      $("cat-msg").classList.add("hidden");
-    }
-
-    $("btn-cat-save").addEventListener("click", saveCategoryTitles);
-    $("btn-cat-reset").addEventListener("click", resetCategoryTitles);
-
-    // ==============================
-    // Dashboard metrics
-    // ==============================
-    function updateDashboard(){
-      const totalOrders = liveOrders.length;
-      const counts = { new:0, preparing:0, out_for_delivery:0, done:0, cancelled:0 };
-      let revenue = 0;
-      let doneCount = 0;
-
-      liveOrders.forEach(o => {
-        const st = o.status || "new";
-        if(counts[st] !== undefined) counts[st]++;
-
-        if(st === "done"){
-          doneCount++;
-          revenue += Number(o.total || 0);
-        }
-      });
-
-      $("m-total-orders").textContent = String(totalOrders);
-      $("m-new").textContent = String(counts.new);
-      $("m-prep").textContent = String(counts.preparing);
-      $("m-out").textContent = String(counts.out_for_delivery);
-      $("m-done").textContent = String(counts.done);
-      $("m-cancel").textContent = String(counts.cancelled);
-
-      $("m-revenue").textContent = moneyBR(revenue);
-      const ticket = doneCount ? (revenue / doneCount) : 0;
-      $("m-ticket").textContent = moneyBR(ticket);
-    }
-
-    // ==============================
+    // =======================
     // Auth state
-    // ==============================
+    // =======================
+    $("btn-logout").addEventListener("click", async () => {
+      await signOut(auth);
+    });
+
     onAuthStateChanged(auth, async (user) => {
       if(user){
+        restaurantId = getRestaurantId();
+
+        if(!restaurantId){
+          alert("⚠️ Não encontrei o ID do restaurante.\nCrie conta ou abra admin.html?r=SEU_ID");
+          await signOut(auth);
+          return;
+        }
+
         $("login-overlay").classList.add("hidden");
         $("app").classList.remove("hidden");
 
-        startOrdersRealtime();
-        startProductsRealtime();
+        // Carrega tudo do restaurante atual
+        await loadRestaurantSettings();
         await loadCategoryTitles();
-        setTab("orders");
+        startProductsRealtime();
+        setTab("products");
       } else {
         $("app").classList.add("hidden");
         $("login-overlay").classList.remove("hidden");
-
-        if(unsubOrders) unsubOrders();
-        unsubOrders = null;
-        liveOrders = [];
-        $("orders-list").innerHTML = "";
-        $("orders-count").textContent = "🧾 0 pedido(s)";
-        $("orders-empty").classList.add("hidden");
 
         if(unsubProducts) unsubProducts();
         unsubProducts = null;
