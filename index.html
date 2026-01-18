@@ -1,11 +1,13 @@
 <!doctype html>
 <html lang="pt-BR" class="h-full">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cardápio Digital</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -106,6 +108,8 @@
       font-weight: 800;
       padding: 0 8px;
     }
+
+    @view-transition { navigation: auto; }
   </style>
 </head>
 
@@ -135,15 +139,15 @@
           </div>
         </div>
 
-        <h1 class="text-3xl md:text-4xl font-bold mb-2"
+        <h1 id="restaurant-name" class="text-3xl md:text-4xl font-bold mb-2"
             style="font-family:'Playfair Display',serif;color:#fef3c7;">Sabor &amp; Arte</h1>
-        <p class="text-lg opacity-90"
+        <p id="slogan" class="text-lg opacity-90"
            style="font-family:'Poppins',sans-serif;color:#fde68a;">Sabor que conquista no primeiro pedido</p>
 
         <div class="mt-6 inline-block px-6 py-3 rounded-full"
              style="background: linear-gradient(135deg, #d97706 0%, #b45309 100%); box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3);">
           <p class="text-sm font-semibold" style="font-family:'Poppins',sans-serif;color:#1a1a1a;">
-            🔥 Promoção do Dia: <span class="font-extrabold">20% OFF em todos os lanches!</span>
+            🔥 <span id="promo-title">Promoção do Dia</span>: <span id="promo-description">20% OFF em todos os lanches!</span>
           </p>
         </div>
       </div>
@@ -151,60 +155,63 @@
 
     <main class="px-4 py-6 max-w-2xl mx-auto" style="font-family:'Poppins',sans-serif;">
 
-      <!-- GAME CTA -->
-      <div class="mb-6">
-        <button onclick="openGame()"
-          class="w-full py-4 rounded-2xl font-extrabold text-lg shadow-lg"
-          style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color:#1a1a1a;">
-          🎮 Jogar (enquanto espera)
-        </button>
-        <p class="text-xs text-center mt-2" style="color:#9ca3af;">
-          Obs.: Subway Surfers geralmente bloqueia abrir dentro do site. Se bloquear, aparece botão pra abrir em nova aba.
-        </p>
-      </div>
-
-      <!-- CARDÁPIO DINÂMICO -->
+      <!-- Lanches -->
       <section class="mb-8">
         <div class="category-header flex items-center gap-3 mb-4 pb-2" style="border-bottom:2px solid #d97706;">
           <span class="category-icon text-3xl">🍔</span>
           <h2 class="text-2xl font-bold" style="color:#d97706;font-family:'Playfair Display',serif;">Lanches</h2>
         </div>
-        <div id="products-Lanches" class="space-y-3"></div>
-      </section>
 
-      <section class="mb-8">
-        <div class="category-header flex items-center gap-3 mb-4 pb-2" style="border-bottom:2px solid #d97706;">
-          <span class="category-icon text-3xl">🍕</span>
-          <h2 class="text-2xl font-bold" style="color:#d97706;font-family:'Playfair Display',serif;">Pizzas</h2>
+        <div class="space-y-3">
+          <div class="menu-item rounded-xl p-4 relative"
+               onclick="addToCart('Smash Burger Especial', 32.90, '🍔')"
+               style="background:linear-gradient(135deg,#262626 0%,#1f1f1f 100%);border:1px solid #404040;">
+            <div class="badge absolute -top-2 -right-2 px-3 py-1 rounded-full text-xs font-bold"
+                 style="background:linear-gradient(135deg,#d97706 0%,#b45309 100%);color:#1a1a1a;">⭐ Mais Vendido</div>
+            <div class="flex justify-between items-start">
+              <div class="flex-1 pr-4">
+                <h3 class="font-semibold text-lg" style="color:#fef3c7;">Smash Burger Especial</h3>
+                <p class="text-sm mt-1 opacity-80" style="color:#d6d3d1;">Dois hambúrgueres smash 90g, cheddar, bacon, cebola caramelizada e molho especial.</p>
+                <p class="text-xs mt-2" style="color:#9ca3af;">Clique para adicionar ao carrinho</p>
+              </div>
+              <div class="text-right"><span class="text-2xl font-bold" style="color:#d97706;">R$ 32,90</span></div>
+            </div>
+          </div>
+
+          <div class="menu-item rounded-xl p-4"
+               onclick="addToCart('X-Bacon Gourmet', 28.90, '🥓')"
+               style="background:linear-gradient(135deg,#262626 0%,#1f1f1f 100%);border:1px solid #404040;">
+            <div class="flex justify-between items-start">
+              <div class="flex-1 pr-4">
+                <h3 class="font-semibold text-lg" style="color:#fef3c7;">X-Bacon Gourmet</h3>
+                <p class="text-sm mt-1 opacity-80" style="color:#d6d3d1;">Hambúrguer 180g, queijo prato, bacon, alface e maionese trufada.</p>
+                <p class="text-xs mt-2" style="color:#9ca3af;">Clique para adicionar ao carrinho</p>
+              </div>
+              <div class="text-right"><span class="text-2xl font-bold" style="color:#d97706;">R$ 28,90</span></div>
+            </div>
+          </div>
+
+          <div class="menu-item rounded-xl p-4 relative"
+               onclick="addToCart('X-Salada Clássico (Promo)', 19.90, '🥬')"
+               style="background:linear-gradient(135deg,#262626 0%,#1f1f1f 100%);border:1px solid #b91c1c;">
+            <div class="badge absolute -top-2 -right-2 px-3 py-1 rounded-full text-xs font-bold"
+                 style="background:linear-gradient(135deg,#b91c1c 0%,#991b1b 100%);color:#fef3c7;">🏷️ Promoção</div>
+            <div class="flex justify-between items-start">
+              <div class="flex-1 pr-4">
+                <h3 class="font-semibold text-lg" style="color:#fef3c7;">X-Salada Clássico</h3>
+                <p class="text-sm mt-1 opacity-80" style="color:#d6d3d1;">Hambúrguer 150g, queijo, alface, tomate, cebola e molho rosé.</p>
+                <p class="text-xs mt-2" style="color:#9ca3af;">Clique para adicionar ao carrinho</p>
+              </div>
+              <div class="text-right">
+                <span class="text-sm line-through opacity-60" style="color:#d6d3d1;">R$ 24,90</span>
+                <span class="text-2xl font-bold block" style="color:#d97706;">R$ 19,90</span>
+              </div>
+            </div>
+          </div>
         </div>
-        <div id="products-Pizzas" class="space-y-3"></div>
-        <h2 id="title-Pizzas"
-    class="text-2xl font-bold"
-    style="color:#d97706;font-family:'Playfair Display',serif;">
-  Pizzas
-</h2>
-
-<div id="products-Pizzas" class="space-y-3"></div>
-
       </section>
 
-      <section class="mb-8">
-        <div class="category-header flex items-center gap-3 mb-4 pb-2" style="border-bottom:2px solid #d97706;">
-          <span class="category-icon text-3xl">🥤</span>
-          <h2 class="text-2xl font-bold" style="color:#d97706;font-family:'Playfair Display',serif;">Bebidas</h2>
-        </div>
-        <div id="products-Bebidas" class="grid grid-cols-2 gap-3"></div>
-      </section>
-
-      <section class="mb-8">
-        <div class="category-header flex items-center gap-3 mb-4 pb-2" style="border-bottom:2px solid #d97706;">
-          <span class="category-icon text-3xl">🍰</span>
-          <h2 class="text-2xl font-bold" style="color:#d97706;font-family:'Playfair Display',serif;">Sobremesas</h2>
-        </div>
-        <div id="products-Sobremesas" class="space-y-3"></div>
-      </section>
-
-      <!-- CTA -->
+      <!-- WhatsApp CTA -->
       <div class="sticky bottom-4 z-50 px-4">
         <div class="delivery-animation mb-3 flex items-center justify-center gap-2">
           <span class="delivery-bike text-4xl">🏍️</span>
@@ -213,13 +220,16 @@
           <span class="delivery-sparkle text-2xl">✨</span>
         </div>
 
-        <button onclick="openCart()"
-          class="whatsapp-btn block w-full py-4 rounded-full text-center font-bold text-lg shadow-lg"
-          style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; font-family: 'Poppins', sans-serif; box-shadow: 0 4px 20px rgba(34, 197, 94, 0.4);">
-          🛒 Ver Carrinho e Finalizar Pedido
-        </button>
+        <a id="whatsapp-btn"
+           href="https://wa.me/5511999999999?text=Olá! Gostaria de fazer um pedido"
+           target="_blank" rel="noopener noreferrer"
+           class="whatsapp-btn block w-full py-4 rounded-full text-center font-bold text-lg shadow-lg"
+           style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; font-family: 'Poppins', sans-serif; box-shadow: 0 4px 20px rgba(34, 197, 94, 0.4);">
+          📲 Peça agora pelo WhatsApp
+        </a>
       </div>
 
+      <!-- Footer -->
       <footer class="mt-8 pb-24 text-center">
         <div class="py-6 rounded-xl mx-4"
              style="background: linear-gradient(135deg, #262626 0%, #1f1f1f 100%); border: 1px solid #404040;">
@@ -234,7 +244,6 @@
 
     </main>
 
-    <!-- Floating cart -->
     <div id="cart-btn" class="cart-fab" onclick="openCart()">
       🛒 Carrinho <span id="cart-count" class="cart-badge">0</span>
     </div>
@@ -279,7 +288,7 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium mb-2" style="color:#fef3c7;">Telefone (WhatsApp)</label>
+            <label class="block text-sm font-medium mb-2" style="color:#fef3c7;">Telefone</label>
             <input type="tel" id="customer-phone" required class="w-full px-4 py-3 rounded-lg"
                    style="background:#1a1a1a; border:1px solid #404040; color:#fef3c7;" placeholder="(11) 99999-9999">
           </div>
@@ -317,12 +326,8 @@
 
           <button type="submit" class="w-full py-4 rounded-xl font-bold text-lg"
                   style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white;">
-            Enviar Pedido 📲
+            Enviar Pedido pelo WhatsApp 📲
           </button>
-
-          <p id="checkout-error" class="text-sm hidden" style="color:#ef4444;">
-            Não foi possível salvar seu pedido. Tente novamente.
-          </p>
         </form>
       </div>
     </div>
@@ -331,8 +336,8 @@
     <div id="success-modal" class="modal-overlay">
       <div class="modal-content p-8 text-center">
         <div class="text-8xl mb-4">✅</div>
-        <h2 class="text-3xl font-bold mb-3" style="color:#22c55e; font-family:'Playfair Display',serif;">Pedido Salvo!</h2>
-        <p class="text-lg mb-6" style="color:#d6d3d1;">Agora vamos abrir o WhatsApp para você enviar a mensagem. 🎉</p>
+        <h2 class="text-3xl font-bold mb-3" style="color:#22c55e; font-family:'Playfair Display',serif;">Pedido Pronto pra Enviar!</h2>
+        <p class="text-lg mb-6" style="color:#d6d3d1;">Abriremos o WhatsApp para você confirmar e enviar. 🎉</p>
 
         <div class="mb-6 p-4 rounded-xl" style="background:#1a1a1a; border:1px solid #404040;">
           <p class="text-sm mb-2" style="color:#fef3c7;">Tempo estimado de entrega:</p>
@@ -343,52 +348,15 @@
       </div>
     </div>
 
-    <!-- GAME MODAL -->
-    <div id="game-modal" class="modal-overlay">
-      <div class="modal-content p-4">
-        <div class="flex justify-between items-center mb-3">
-          <h2 class="text-xl font-bold" style="color:#fef3c7; font-family:'Playfair Display',serif;">🎮 Jogo</h2>
-          <button onclick="closeGame()" class="text-3xl" style="color:#d6d3d1;">×</button>
-        </div>
-
-        <div class="rounded-2xl overflow-hidden" style="border:1px solid #404040;">
-          <iframe
-            id="game-iframe"
-            class="game-frame"
-            src=""
-            loading="lazy"
-            referrerpolicy="no-referrer"
-            allow="fullscreen; autoplay"
-            sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-forms allow-popups"
-          ></iframe>
-        </div>
-
-        <div id="game-fallback" class="mt-4 hidden text-center">
-          <p class="text-sm mb-3" style="color:#d6d3d1;">
-            O Subway Surfers bloqueia abrir dentro do site. Clique abaixo para jogar em nova aba:
-          </p>
-          <a id="game-open-tab" class="inline-block px-5 py-3 rounded-xl font-extrabold"
-             style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color:#06140b;"
-             target="_blank" rel="noopener">
-            Abrir em nova aba ✅
-          </a>
-        </div>
-      </div>
-    </div>
-
   </div>
 
+  <!-- =========================
+       SCRIPT ÚNICO (SEM DUPLICAR)
+       ========================= -->
   <script type="module">
+    // Firebase
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import {
-      getFirestore,
-      collection,
-      addDoc,
-      serverTimestamp,
-      onSnapshot,
-      query,
-      orderBy
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBqFZJ5wg3VIJlJtA4DgFS499_9rXu-zAk",
@@ -402,12 +370,16 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    const RESTAURANT_PHONE = "5511999999999"; // troque pelo número real
+    // STATE
     let cart = [];
 
-    const $ = (id) => document.getElementById(id);
-    const digits = (v) => String(v||"").replace(/\D/g,"");
-    const money = (v) => `R$ ${Number(v||0).toFixed(2).replace(".", ",")}`;
+    const defaultConfig = {
+      whatsapp_number: '5511999999999'
+    };
+
+    // UI
+    function money(v){ return `R$ ${Number(v||0).toFixed(2)}`; }
+    function digits(v){ return String(v||"").replace(/\D/g,""); }
 
     function showToast(message) {
       const toast = document.createElement('div');
@@ -423,10 +395,10 @@
     }
 
     function updateCartUI() {
-      const cartBtn = $("cart-btn");
-      const cartCount = $("cart-count");
-      const cartItems = $("cart-items");
-      const cartTotal = $("cart-total");
+      const cartBtn = document.getElementById('cart-btn');
+      const cartCount = document.getElementById('cart-count');
+      const cartItems = document.getElementById('cart-items');
+      const cartTotal = document.getElementById('cart-total');
 
       const totalItems = cart.reduce((s, i) => s + i.quantity, 0);
       const totalPrice = cart.reduce((s, i) => s + i.price * i.quantity, 0);
@@ -471,6 +443,7 @@
       cartTotal.textContent = money(totalPrice);
     }
 
+    // CART ACTIONS
     window.addToCart = function(name, price, emoji){
       const existing = cart.find(i => i.name === name);
       if (existing) existing.quantity++;
@@ -480,226 +453,110 @@
     };
 
     window.openCart = function(){
-      if (cart.length === 0) { showToast('⚠️ Adicione itens primeiro!'); return; }
-      $("cart-modal").classList.add("active");
+      if (cart.length === 0) { showToast('⚠️ Adicione itens ao carrinho primeiro!'); return; }
+      document.getElementById('cart-modal').classList.add('active');
     };
-    window.closeCart = function(){ $("cart-modal").classList.remove("active"); };
+    window.closeCart = function(){ document.getElementById('cart-modal').classList.remove('active'); };
 
     window.openCheckout = function(){
       if (cart.length === 0) return;
       window.closeCart();
-      $("checkout-modal").classList.add("active");
+      document.getElementById('checkout-modal').classList.add('active');
     };
-    window.closeCheckout = function(){ $("checkout-modal").classList.remove("active"); };
+    window.closeCheckout = function(){ document.getElementById('checkout-modal').classList.remove('active'); };
 
     window.closeSuccess = function(){
-      $("success-modal").classList.remove("active");
+      document.getElementById('success-modal').classList.remove('active');
       cart = [];
       updateCartUI();
     };
 
+    // Close modals on overlay click
     document.querySelectorAll('.modal-overlay').forEach(modal => {
       modal.addEventListener('click', function(e) {
         if (e.target === this) this.classList.remove('active');
       });
     });
 
-    $("customer-cep").addEventListener('input', function(e) {
-      let v = e.target.value.replace(/\D/g, '');
-      if (v.length > 5) v = v.slice(0,5) + '-' + v.slice(5,8);
-      e.target.value = v;
-    });
+    // CEP mask
+    const cepInput = document.getElementById('customer-cep');
+    if (cepInput) {
+      cepInput.addEventListener('input', function(e) {
+        let v = e.target.value.replace(/\D/g, '');
+        if (v.length > 5) v = v.slice(0,5) + '-' + v.slice(5,8);
+        e.target.value = v;
+      });
+    }
 
-    $("checkout-form").addEventListener("submit", async (e) => {
+    // SUBMIT -> Firestore + WhatsApp
+    const form = document.getElementById("checkout-form");
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      $("checkout-error").classList.add("hidden");
 
-      try {
-        if (!cart.length) { showToast("Carrinho vazio."); return; }
+      const name = document.getElementById("customer-name").value.trim();
+      const phone = document.getElementById("customer-phone").value.trim();
+      const cep = document.getElementById("customer-cep").value.trim();
+      const address = document.getElementById("customer-address").value.trim();
+      const neighborhood = document.getElementById("customer-neighborhood").value.trim();
+      const city = document.getElementById("customer-city").value.trim();
+      const complement = document.getElementById("customer-complement").value.trim();
 
-        const name = $("customer-name").value.trim();
-        const phone = $("customer-phone").value.trim();
-        const cep = $("customer-cep").value.trim();
-        const address = $("customer-address").value.trim();
-        const neighborhood = $("customer-neighborhood").value.trim();
-        const city = $("customer-city").value.trim();
-        const complement = $("customer-complement").value.trim();
+      if (!cart.length) { alert("Carrinho vazio."); return; }
 
-        const total = cart.reduce((sum, i) => sum + (i.price * i.quantity), 0);
-        const addressLine = `${address} — ${neighborhood}, ${city} • CEP ${cep}${complement ? " • " + complement : ""}`;
+      const total = cart.reduce((sum, i) => sum + (i.price * i.quantity), 0);
 
-        const orderDoc = {
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp(),
-          status: "new",
-          customer: { name, phone, addressLine },
-          items: cart.map(i => ({ name: i.name, qty: i.quantity, price: i.price, emoji: i.emoji })),
-          total: Number(total)
-        };
+      const orderDoc = {
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        status: "new",
+        customer: {
+          name,
+          phone,
+          addressLine: `${address} — ${neighborhood}, ${city} • CEP ${cep}${complement ? " • " + complement : ""}`
+        },
+        items: cart.map(i => ({
+          name: i.name,
+          qty: i.quantity,
+          price: i.price,
+          emoji: i.emoji || ""
+        })),
+        total: Number(total)
+      };
 
-        await addDoc(collection(db, "orders"), orderDoc);
+      await addDoc(collection(db, "orders"), orderDoc);
 
-        let msg = `🍽️ *NOVO PEDIDO*\\n\\n`;
-        msg += `👤 *Cliente:* ${name}\\n`;
-        msg += `📱 *Telefone:* ${phone}\\n\\n`;
-        msg += `📍 *Endereço:*\\n${addressLine}\\n\\n`;
-        msg += `🛒 *Itens:*\\n`;
-        orderDoc.items.forEach(i => {
-          msg += `\\n${i.emoji || "🍽️"} ${i.qty}x ${i.name} — R$ ${(i.price * i.qty).toFixed(2)}`;
-        });
-        msg += `\\n\\n💰 *TOTAL: R$ ${orderDoc.total.toFixed(2)}*\\n`;
-        msg += `\\n⏱️ Tempo estimado: 45min a 1:20h`;
+      let msg = `🍽️ *NOVO PEDIDO*\\n\\n`;
+      msg += `👤 *Cliente:* ${name}\\n`;
+      msg += `📱 *Telefone:* ${phone}\\n\\n`;
+      msg += `📍 *Endereço:*\\n${orderDoc.customer.addressLine}\\n\\n`;
+      msg += `🛒 *Itens:*\\n\\n`;
+      orderDoc.items.forEach(i => {
+        const em = i.emoji || "🍽️";
+        msg += `${em} ${i.qty}x ${i.name}\\n`;
+        msg += `   R$ ${(i.price * i.qty).toFixed(2)}\\n\\n`;
+      });
+      msg += `💰 *TOTAL: R$ ${orderDoc.total.toFixed(2)}*\\n\\n`;
+      msg += `⏱️ Tempo estimado: 45min a 1:20h`;
 
-        const waUrl = `https://wa.me/${digits(RESTAURANT_PHONE)}?text=${encodeURIComponent(msg)}`;
+      const sdkNumber = window.elementSdk?.config?.whatsapp_number;
+      const restaurantPhone = digits(sdkNumber || defaultConfig.whatsapp_number);
 
-        window.closeCheckout();
-        $("success-modal").classList.add("active");
-        setTimeout(() => window.open(waUrl, "_blank", "noopener,noreferrer"), 450);
+      const waUrl = restaurantPhone
+        ? `https://wa.me/${restaurantPhone}?text=${encodeURIComponent(msg)}`
+        : `https://wa.me/?text=${encodeURIComponent(msg)}`;
 
-        $("checkout-form").reset();
-        cart = [];
-        updateCartUI();
-      } catch (err) {
-        console.error(err);
-        $("checkout-error").classList.remove("hidden");
-      }
+      window.closeCheckout();
+      document.getElementById("success-modal").classList.add("active");
+
+      setTimeout(() => window.open(waUrl, "_blank", "noopener,noreferrer"), 500);
+
+      form.reset();
+      cart = [];
+      updateCartUI();
     });
 
-    // ==============================
-    // PRODUTOS (Firestore -> products)
-    // ==============================
-    function escapeHtml(str){
-      return String(str ?? "")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-    }
-
-    function moneyBR(value){
-      const n = Number(value || 0);
-      return n.toLocaleString("pt-BR", { style:"currency", currency:"BRL" });
-    }
-
-    function normalizeCategory(cat){
-      const c = String(cat || "").trim().toLowerCase();
-      if (c.includes("lanche")) return "Lanches";
-      if (c.includes("pizza")) return "Pizzas";
-      if (c.includes("bebida")) return "Bebidas";
-      if (c.includes("sobrem")) return "Sobremesas";
-      return "Lanches";
-    }
-
-    function renderProductCard(p){
-      const emoji = p.emoji || "🍽️";
-      const nameText = escapeHtml(p.name || "Produto");
-      const desc = escapeHtml(p.description || "");
-      const price = Number(p.price || 0);
-
-      const safeName = (p.name || "Produto").replaceAll("\\", "\\\\").replaceAll("'", "\\'");
-      const safeEmoji = (emoji || "🍽️").replaceAll("\\", "\\\\").replaceAll("'", "\\'");
-
-      if (normalizeCategory(p.category) === "Bebidas") {
-        return `
-          <div class="menu-item rounded-xl p-3 text-center"
-               onclick="addToCart('${safeName}', ${price}, '${safeEmoji}')"
-               style="background:linear-gradient(135deg,#262626 0%,#1f1f1f 100%);border:1px solid #404040;">
-            <div class="w-full aspect-[4/3] rounded-lg overflow-hidden mb-2" style="background:#0f0f0f;">
-              ${p.imageUrl
-                ? `<img src="${escapeHtml(p.imageUrl)}" alt="${nameText}" class="w-full h-full object-cover" loading="lazy">`
-                : `<div class="w-full h-full flex items-center justify-center text-3xl">${emoji}</div>`}
-            </div>
-            <h3 class="font-medium" style="color:#fef3c7;">${nameText}</h3>
-            <span class="text-lg font-bold" style="color:#d97706;">${moneyBR(price)}</span>
-          </div>
-        `;
-      }
-
-      return `
-        <div class="menu-item rounded-xl p-4"
-             onclick="addToCart('${safeName}', ${price}, '${safeEmoji}')"
-             style="background:linear-gradient(135deg,#262626 0%,#1f1f1f 100%);border:1px solid #404040;">
-          <div class="flex gap-4">
-            <div class="w-24 h-24 rounded-xl overflow-hidden flex items-center justify-center"
-                 style="background:#0f0f0f; border:1px solid #404040;">
-              ${p.imageUrl
-                ? `<img src="${escapeHtml(p.imageUrl)}" alt="${nameText}" class="w-full h-full object-cover" loading="lazy">`
-                : `<span class="text-4xl">${emoji}</span>`}
-            </div>
-
-            <div class="flex-1">
-              <div class="flex justify-between items-start gap-3">
-                <h3 class="font-semibold text-lg" style="color:#fef3c7;">${nameText}</h3>
-                <span class="text-2xl font-bold" style="color:#d97706;">${moneyBR(price)}</span>
-              </div>
-
-              ${desc ? `<p class="text-sm mt-1 opacity-80" style="color:#d6d3d1;">${desc}</p>` : ""}
-              <p class="text-xs mt-2" style="color:#9ca3af;">Clique para adicionar ao carrinho</p>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    function clearSections(){
-      ["Lanches","Pizzas","Bebidas","Sobremesas"].forEach(cat => {
-        const el = document.getElementById(`products-${cat}`);
-        if (el) el.innerHTML = "";
-      });
-    }
-
-    function mountProducts(list){
-      clearSections();
-
-      const active = list.filter(p => p.isActive !== false);
-
-      for (const p of active) {
-        const cat = normalizeCategory(p.category);
-        const container = document.getElementById(`products-${cat}`);
-        if (!container) continue;
-        container.insertAdjacentHTML("beforeend", renderProductCard(p));
-      }
-    }
-
-    function startProductsRealtime(){
-      const qy = query(collection(db, "products"), orderBy("createdAt", "desc"));
-      onSnapshot(qy, (snap) => {
-        const products = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        mountProducts(products);
-      }, (err) => {
-        console.error("Falha ao ler products:", err);
-      });
-    }
-
-    // ====== GAME ======
-    const GAME_URL = "https://subway-surfers.gg/";
-
-    window.openGame = function(){
-      const modal = $("game-modal");
-      const iframe = $("game-iframe");
-      const fallback = $("game-fallback");
-      const openTab = $("game-open-tab");
-
-      openTab.href = GAME_URL;
-
-      modal.classList.add("active");
-      fallback.classList.add("hidden");
-      iframe.src = GAME_URL;
-
-      setTimeout(() => {
-        fallback.classList.remove("hidden");
-      }, 1200);
-    };
-
-    window.closeGame = function(){
-      $("game-modal").classList.remove("active");
-      $("game-iframe").src = "";
-    };
-
-    // INIT
+    // Init
     updateCartUI();
-    startProductsRealtime();
   </script>
 </body>
 </html>
