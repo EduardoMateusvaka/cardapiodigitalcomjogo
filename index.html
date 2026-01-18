@@ -14,13 +14,10 @@
   <style>
     body { box-sizing: border-box; }
     * { scrollbar-width: thin; scrollbar-color: #d97706 #1a1a1a; }
-
     .menu-item { transition: all 0.25s ease; cursor: pointer; }
     .menu-item:hover { transform: translateY(-2px); border-color: rgba(217,119,6,.55) !important; }
-
     .badge { animation: pulse 2s infinite; }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.85} }
-
     .whatsapp-btn { animation: bounce 2s infinite; }
     @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
 
@@ -155,7 +152,6 @@
 
     <main class="px-4 py-6 max-w-2xl mx-auto" style="font-family:'Poppins',sans-serif;">
 
-      <!-- WARN IF NO RESTAURANT -->
       <div id="no-restaurant" class="hidden mb-6 p-4 rounded-xl border border-red-500/30 bg-red-500/10">
         <p class="font-bold" style="color:#fecaca;">⚠️ Restaurante não encontrado</p>
         <p class="text-sm mt-1" style="color:#fecaca;">
@@ -175,7 +171,7 @@
         </p>
       </div>
 
-      <!-- CARDÁPIO DINÂMICO -->
+      <!-- CARDÁPIO -->
       <section class="mb-8">
         <div class="category-header flex items-center gap-3 mb-4 pb-2" style="border-bottom:2px solid #d97706;">
           <span class="category-icon text-3xl">🍔</span>
@@ -236,7 +232,6 @@
           <p class="text-xs mt-3 opacity-60" style="color:#d6d3d1;">Desenvolvido por MarksmktDigital</p>
         </div>
       </footer>
-
     </main>
 
     <!-- Floating cart -->
@@ -386,15 +381,8 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
-      getFirestore,
-      collection,
-      addDoc,
-      serverTimestamp,
-      onSnapshot,
-      query,
-      orderBy,
-      doc,
-      getDoc
+      getFirestore, collection, addDoc, serverTimestamp,
+      onSnapshot, query, orderBy, doc, getDoc
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -411,19 +399,16 @@
 
     const $ = (id) => document.getElementById(id);
     const digits = (v) => String(v||"").replace(/\D/g,"");
-    const money = (v) => `R$ ${Number(v||0).toFixed(2).replace(".", ",")}`;
 
     // ==============================
     // Multi-restaurante
     // ==============================
     function getRestaurantId(){
       const url = new URL(location.href);
-      return url.searchParams.get("r") || localStorage.getItem("restaurantId") || "";
+      return (url.searchParams.get("r") || "").trim();
     }
-
     const restaurantId = getRestaurantId();
 
-    // refs
     const restRef = restaurantId ? doc(db, "restaurants", restaurantId) : null;
     const menuRef = restaurantId ? doc(db, "restaurants", restaurantId, "settings", "menu") : null;
     const productsRef = restaurantId ? collection(db, "restaurants", restaurantId, "products") : null;
@@ -459,22 +444,22 @@
       if(!restaurantId){
         $("no-restaurant").classList.remove("hidden");
         $("restaurant-name").textContent = "Cardápio";
-        return;
+        return false;
       }
-
       try{
         const snap = await getDoc(restRef);
         if(!snap.exists()){
           $("no-restaurant").classList.remove("hidden");
           $("restaurant-name").textContent = "Restaurante não encontrado";
-          return;
+          return false;
         }
-
         restaurant = { ...restaurant, ...snap.data() };
         setHeader();
+        return true;
       }catch(e){
         console.error("Erro ao carregar restaurante:", e);
         $("no-restaurant").classList.remove("hidden");
+        return false;
       }
     }
 
@@ -498,7 +483,6 @@
     // Carrinho
     // ==============================
     let cart = [];
-
     function moneyBR(v){
       const n = Number(v || 0);
       return n.toLocaleString("pt-BR", { style:"currency", currency:"BRL" });
@@ -593,7 +577,7 @@
     });
 
     // ==============================
-    // Checkout -> salva order + abre WhatsApp do restaurante
+    // Checkout -> salva order + abre WhatsApp
     // ==============================
     $("checkout-form").addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -656,7 +640,7 @@
     });
 
     // ==============================
-    // Produtos (Firestore -> restaurants/{id}/products)
+    // Produtos
     // ==============================
     function escapeHtml(str){
       return String(str ?? "")
@@ -736,9 +720,7 @@
 
     function mountProducts(list){
       clearSections();
-
       const active = list.filter(p => p.isActive !== false);
-
       for (const p of active) {
         const cat = normalizeCategory(p.category);
         const container = document.getElementById(`products-${cat}`);
@@ -749,35 +731,26 @@
 
     function startProductsRealtime(){
       if(!restaurantId || !productsRef) return;
-
       const qy = query(productsRef, orderBy("createdAt", "desc"));
       onSnapshot(qy, (snap) => {
         const products = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         mountProducts(products);
-      }, (err) => {
-        console.error("Falha ao ler products:", err);
-      });
+      }, (err) => console.error("Falha ao ler products:", err));
     }
 
-    // ==============================
-    // Títulos das categorias (Firestore -> restaurants/{id}/settings/menu)
-    // ==============================
     async function loadCategoryTitles(){
       if(!restaurantId || !menuRef) return;
       try{
         const snap = await getDoc(menuRef);
         if(!snap.exists()) return;
-
         const data = snap.data() || {};
         const titles = data.categoryTitles || {};
-
         const setTitle = (key, elId) => {
           const el = document.getElementById(elId);
           if (!el) return;
           const v = titles[key];
           if (v && String(v).trim()) el.textContent = String(v).trim();
         };
-
         setTitle("Lanches", "title-Lanches");
         setTitle("Pizzas", "title-Pizzas");
         setTitle("Bebidas", "title-Bebidas");
@@ -787,26 +760,19 @@
       }
     }
 
-    // ====== GAME ======
+    // GAME
     const GAME_URL = "https://subway-surfers.gg/";
-
     window.openGame = function(){
       const modal = $("game-modal");
       const iframe = $("game-iframe");
       const fallback = $("game-fallback");
       const openTab = $("game-open-tab");
-
       openTab.href = GAME_URL;
-
       modal.classList.add("active");
       fallback.classList.add("hidden");
       iframe.src = GAME_URL;
-
-      setTimeout(() => {
-        fallback.classList.remove("hidden");
-      }, 1200);
+      setTimeout(() => fallback.classList.remove("hidden"), 1200);
     };
-
     window.closeGame = function(){
       $("game-modal").classList.remove("active");
       $("game-iframe").src = "";
@@ -814,9 +780,11 @@
 
     // INIT
     updateCartUI();
-    await loadRestaurant();
-    await loadCategoryTitles();
-    startProductsRealtime();
+    const ok = await loadRestaurant();
+    if (ok) {
+      await loadCategoryTitles();
+      startProductsRealtime();
+    }
   </script>
 </body>
 </html>

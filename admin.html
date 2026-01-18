@@ -17,8 +17,6 @@
     .btn { border-radius: 14px; padding: 10px 12px; font-weight: 800; }
     .btn-primary { background: linear-gradient(135deg,#d97706 0%,#b45309 100%); color:#141414; }
     .btn-dark { background:#0f0f0f; border:1px solid #2c2c2c; color:#fde68a; }
-    .btn-green { background: linear-gradient(135deg,#22c55e 0%,#16a34a 100%); color:#06140b; }
-    .btn-blue { background: linear-gradient(135deg,#3b82f6 0%,#1d4ed8 100%); color:#0b1020; }
     .btn-red { background: linear-gradient(135deg,#ef4444 0%,#b91c1c 100%); color:#170505; }
     .badge { border-radius: 999px; padding: 6px 10px; font-weight: 800; font-size: 12px; display:inline-flex; align-items:center; gap:6px; }
     .badge-new { background: rgba(217,119,6,.18); border:1px solid rgba(217,119,6,.35); color:#fde68a; }
@@ -45,8 +43,6 @@
       </div>
 
       <div class="mt-5 space-y-3">
-
-        <!-- CAMPOS DE CADASTRO (aparecem só no modo register) -->
         <div id="register-extra" class="hidden space-y-3">
           <div>
             <label class="text-sm font-semibold" style="color:#fde68a;">Nome do Restaurante</label>
@@ -74,7 +70,6 @@
           </p>
         </div>
 
-        <!-- EMAIL/SENHA (sempre visível) -->
         <div>
           <label class="text-sm font-semibold" style="color:#fde68a;">Email</label>
           <input id="login-email" class="input mt-2" type="email" placeholder="restaurante@email.com" autocomplete="username" />
@@ -94,7 +89,6 @@
   </div>
 
   <div id="app" class="min-h-screen hidden">
-    <!-- Topbar -->
     <header class="sticky top-0 z-50 backdrop-blur bg-black/70 border-b border-neutral-800">
       <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-3">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
@@ -107,7 +101,6 @@
           </div>
         </div>
 
-        <!-- Tabs -->
         <div class="flex flex-wrap gap-2">
           <button id="tab-products" class="tab active">🍔 Produtos</button>
           <button id="tab-categories" class="tab">📝 Categorias</button>
@@ -236,36 +229,21 @@
           <p id="settings-msg" class="text-sm mt-3 hidden"></p>
         </div>
       </section>
-
     </main>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
-      getFirestore,
-      collection,
-      query,
-      orderBy,
-      onSnapshot,
-      doc,
-      getDoc,
-      updateDoc,
-      serverTimestamp,
-      addDoc,
-      deleteDoc,
-      setDoc
+      getFirestore, collection, query, orderBy, onSnapshot,
+      doc, getDoc, updateDoc, serverTimestamp, addDoc, deleteDoc, setDoc
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     import {
-      getAuth,
-      signInWithEmailAndPassword,
-      onAuthStateChanged,
-      signOut,
-      createUserWithEmailAndPassword
+      getAuth, signInWithEmailAndPassword, onAuthStateChanged,
+      signOut, createUserWithEmailAndPassword
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-    // ✅ SEU firebaseConfig
     const firebaseConfig = {
       apiKey: "AIzaSyBqFZJ5wg3VIJlJtA4DgFS499_9rXu-zAk",
       authDomain: "cardapio-digital-adc3d.firebaseapp.com",
@@ -280,12 +258,12 @@
     const db = getFirestore(app);
 
     const $ = (id) => document.getElementById(id);
+    function digits(v){ return String(v || "").replace(/\D/g, ""); }
 
     // =======================
     // UI Auth Mode
     // =======================
-    let AUTH_MODE = "login"; // "login" | "register"
-
+    let AUTH_MODE = "login";
     function setMode(mode){
       AUTH_MODE = mode;
       const isReg = AUTH_MODE === "register";
@@ -298,24 +276,26 @@
       $("login-error").classList.add("hidden");
       $("register-error").classList.add("hidden");
     }
-
     $("mode-login").onclick = () => setMode("login");
     $("mode-register").onclick = () => setMode("register");
     setMode("login");
-
-    function digits(v){ return String(v || "").replace(/\D/g, ""); }
 
     function randomId(prefix="rest_"){
       return prefix + Math.random().toString(36).slice(2,10) + Math.random().toString(36).slice(2,6);
     }
 
-    async function ensureRestaurantForUser(user, regData){
+    // =======================
+    // SaaS: cria estrutura do restaurante + user profile
+    // =======================
+    async function createSaasRestaurantForUser(user, regData){
       const restaurantId = randomId();
 
       const restRef = doc(db, "restaurants", restaurantId);
       const memberRef = doc(db, "restaurants", restaurantId, "members", user.uid);
       const menuRef = doc(db, "restaurants", restaurantId, "settings", "menu");
+      const userRef = doc(db, "users", user.uid);
 
+      // 1) restaurante
       await setDoc(restRef, {
         name: regData.restaurantName || "Meu Restaurante",
         logoUrl: "",
@@ -330,11 +310,13 @@
         updatedAt: serverTimestamp()
       });
 
+      // 2) members (dono)
       await setDoc(memberRef, {
         role: "owner",
         createdAt: serverTimestamp()
       });
 
+      // 3) settings/menu
       await setDoc(menuRef, {
         categoryTitles: {
           Lanches: "Lanches",
@@ -345,8 +327,13 @@
         updatedAt: serverTimestamp()
       }, { merge: true });
 
-      // salva no navegador pra esse usuário cair sempre no restaurante dele
-      localStorage.setItem("restaurantId", restaurantId);
+      // 4) user profile -> amarra o uid ao restaurante (isso elimina ?r=)
+      await setDoc(userRef, {
+        restaurantId,
+        role: "owner",
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      }, { merge: true });
 
       return restaurantId;
     }
@@ -364,7 +351,6 @@
           return;
         }
 
-        // register
         const regData = {
           restaurantName: ($("reg-rest-name").value || "").trim(),
           ownerName: ($("reg-owner-name").value || "").trim(),
@@ -379,10 +365,17 @@
         }
 
         const cred = await createUserWithEmailAndPassword(auth, email, pass);
-        const restaurantId = await ensureRestaurantForUser(cred.user, regData);
+        const restaurantId = await createSaasRestaurantForUser(cred.user, regData);
 
-        alert(`✅ Conta criada!\n\nSeu ID do restaurante é: ${restaurantId}\n\nAbra o cardápio do seu restaurante assim:\nindex.html?r=${restaurantId}`);
+        alert(`✅ Conta criada!\n\nSeu cardápio:\nindex.html?r=${restaurantId}\n\n(Guarde esse link)`);
       } catch (e) {
+        // Caso clássico: email já existe
+        if (String(e?.code || "").includes("auth/email-already-in-use")) {
+          $("register-error").textContent = "Esse email já está cadastrado. Clique em ENTRAR e faça login.";
+          $("register-error").classList.remove("hidden");
+          return;
+        }
+
         if(AUTH_MODE === "login"){
           $("login-error").classList.remove("hidden");
         } else {
@@ -410,18 +403,32 @@
     $("tab-settings").addEventListener("click", () => setTab("settings"));
 
     // =======================
-    // Restaurant context
+    // Restaurant context (pega do /users/{uid})
     // =======================
-    function getRestaurantId(){
-      const url = new URL(location.href);
-      admin.html?r=Y05NqLSXnNZvFUzAUEP2lZGJaji1
-      return url.searchParams.get("r") || localStorage.getItem("restaurantId") || "";
-    }
-
     let restaurantId = "";
+
     function restDoc(){ return doc(db, "restaurants", restaurantId); }
     function menuDoc(){ return doc(db, "restaurants", restaurantId, "settings", "menu"); }
     function productsCol(){ return collection(db, "restaurants", restaurantId, "products"); }
+
+    async function resolveRestaurantId(user){
+      // 1) tenta /users/{uid}
+      try{
+        const us = await getDoc(doc(db, "users", user.uid));
+        if (us.exists() && us.data()?.restaurantId) return String(us.data().restaurantId);
+      }catch(e){}
+
+      // 2) fallback: se alguém tiver um restaurante antigo salvo no navegador
+      const saved = localStorage.getItem("restaurantId") || "";
+      if (saved) return saved;
+
+      // 3) fallback: URL param ?r=
+      const url = new URL(location.href);
+      const r = (url.searchParams.get("r") || "").trim();
+      if (r) return r;
+
+      return "";
+    }
 
     // =======================
     // Settings
@@ -435,7 +442,6 @@
     async function loadRestaurantSettings(){
       const snap = await getDoc(restDoc());
       const data = snap.exists() ? snap.data() : {};
-
       $("rest-indicator").textContent = `Restaurante: ${data.name || restaurantId}`;
 
       $("set-rest-name").value = data.name || "";
@@ -503,7 +509,7 @@
           updatedAt: serverTimestamp()
         }, { merge: true });
 
-        setCatMsg("✅ Títulos salvos! (o index deve ler restaurants/{id}/settings/menu)", true);
+        setCatMsg("✅ Títulos salvos!", true);
       } catch (e){
         setCatMsg("Erro ao salvar títulos. Verifique rules.", false);
       }
@@ -684,18 +690,20 @@
 
     onAuthStateChanged(auth, async (user) => {
       if(user){
-        restaurantId = getRestaurantId();
+        restaurantId = await resolveRestaurantId(user);
 
         if(!restaurantId){
-          alert("⚠️ Não encontrei o ID do restaurante.\nCrie conta ou abra admin.html?r=SEU_ID");
+          alert("⚠️ Não encontrei o restaurante desse usuário.\nCrie a conta novamente ou verifique /users/{uid}.");
           await signOut(auth);
           return;
         }
 
+        // guarda no navegador (ajuda)
+        localStorage.setItem("restaurantId", restaurantId);
+
         $("login-overlay").classList.add("hidden");
         $("app").classList.remove("hidden");
 
-        // Carrega tudo do restaurante atual
         await loadRestaurantSettings();
         await loadCategoryTitles();
         startProductsRealtime();
