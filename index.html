@@ -518,9 +518,9 @@
         </div>
 
         <div id="game-fallback" class="mt-4 hidden text-center">
-          <p class="text-sm mb-3" style="color:#d6d3d1;">
-            Esse link bloqueou o jogo dentro do site.
-          </p>
+         <p class="text-sm mb-3" style="color:#d6d3d1;">
+  O Subway Surfers bloqueia abrir dentro do site. Clique abaixo para jogar em nova aba:
+</p>
           <a id="game-open-tab" class="inline-block px-5 py-3 rounded-xl font-extrabold"
             style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color:#06140b;"
             target="_blank" rel="noopener">
@@ -738,25 +738,31 @@
 
     // ====== GAME MODAL ======
     // Se você tiver o link do jogo que FUNCIONAVA no iframe, troque aqui:
-    const GAME_URL = "https://openprocessing.org/sketch/2500693/embed/";
+    const GAME_URL = "https://subway-surfers.gg/";
 
     window.openGame = function(){
-      const modal = $("game-modal");
-      const iframe = $("game-iframe");
-      const fallback = $("game-fallback");
-      const openTab = $("game-open-tab");
+  const modal = document.getElementById("game-modal");
+  const iframe = document.getElementById("game-iframe");
+  const fallback = document.getElementById("game-fallback");
+  const openTab = document.getElementById("game-open-tab");
 
-      fallback.classList.add("hidden");
-      iframe.src = GAME_URL;
-      openTab.href = GAME_URL;
+  // Sempre deixar o botão "nova aba" pronto
+  openTab.href = GAME_URL;
 
-      modal.classList.add("active");
+  // Mostra modal
+  modal.classList.add("active");
 
-      // fallback se bloquear iframe
-      setTimeout(() => {
-        fallback.classList.remove("hidden");
-      }, 2500);
-    };
+  // Tenta iframe (provavelmente será bloqueado)
+  fallback.classList.add("hidden");
+  iframe.src = GAME_URL;
+
+  // Se bloquear, a gente mostra o fallback rapidamente
+  // (não existe 100% de detecção confiável, então mostramos por tempo)
+  setTimeout(() => {
+    fallback.classList.remove("hidden");
+  }, 1200);
+};
+
 
     window.closeGame = function(){
       $("game-modal").classList.remove("active");
