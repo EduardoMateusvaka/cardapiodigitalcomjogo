@@ -78,6 +78,7 @@
         <div class="flex flex-wrap gap-2">
           <button id="tab-orders" class="tab active">🧾 Pedidos</button>
           <button id="tab-products" class="tab">🍔 Produtos</button>
+          <button id="tab-categories" class="tab">📝 Categorias</button>
           <button id="tab-dashboard" class="tab">📊 Dashboard</button>
         </div>
       </div>
@@ -173,6 +174,69 @@
         </div>
       </section>
 
+      <!-- CATEGORIES VIEW (NOVO) -->
+      <section id="view-categories" class="hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div class="lg:col-span-6 space-y-6">
+            <div class="card p-5">
+              <h2 class="text-xl font-bold title" style="color:#fde68a;">Renomear Categorias (títulos do cardápio)</h2>
+              <p class="text-sm muted mt-2">
+                Isso muda <b>apenas o nome que o cliente vê</b> no cardápio.<br>
+                Não muda a categoria interna dos produtos (para não quebrar o sistema).
+              </p>
+
+              <div class="divider my-5"></div>
+
+              <div class="space-y-3">
+                <div>
+                  <label class="text-sm font-semibold" style="color:#fde68a;">Lanches (título)</label>
+                  <input id="cat-title-Lanches" class="input mt-2" placeholder="Ex: Hambúrgueres" />
+                </div>
+
+                <div>
+                  <label class="text-sm font-semibold" style="color:#fde68a;">Pizzas (título)</label>
+                  <input id="cat-title-Pizzas" class="input mt-2" placeholder="Ex: Massas" />
+                </div>
+
+                <div>
+                  <label class="text-sm font-semibold" style="color:#fde68a;">Bebidas (título)</label>
+                  <input id="cat-title-Bebidas" class="input mt-2" placeholder="Ex: Drinks" />
+                </div>
+
+                <div>
+                  <label class="text-sm font-semibold" style="color:#fde68a;">Sobremesas (título)</label>
+                  <input id="cat-title-Sobremesas" class="input mt-2" placeholder="Ex: Doces" />
+                </div>
+              </div>
+
+              <div class="divider my-5"></div>
+
+              <div class="flex gap-2">
+                <button id="btn-cat-save" class="btn btn-primary w-full">💾 Salvar Títulos</button>
+                <button id="btn-cat-reset" class="btn btn-dark">↩️ Reset</button>
+              </div>
+
+              <p id="cat-msg" class="text-sm mt-3 hidden"></p>
+            </div>
+          </div>
+
+          <div class="lg:col-span-6 space-y-6">
+            <div class="card p-5">
+              <h3 class="text-lg font-bold title" style="color:#fde68a;">Como aparece no cliente</h3>
+              <p class="text-sm muted mt-2">
+                No seu <b>index.html</b>, você vai ler <b>settings/menu</b> e trocar os textos dos títulos.
+                Se você quiser, eu também te entrego o trecho do index pronto.
+              </p>
+              <div class="divider my-5"></div>
+              <p class="text-sm" style="color:#fef3c7;">
+                ✅ Exemplo: “Pizzas” ➜ “Massas”<br>
+                ✅ Exemplo: “Lanches” ➜ “Almoço Executivo”
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- DASHBOARD VIEW -->
       <section id="view-dashboard" class="hidden">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -261,7 +325,9 @@
       updateDoc,
       serverTimestamp,
       addDoc,
-      deleteDoc
+      deleteDoc,
+      getDoc,
+      setDoc
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     // ✅ SEU firebaseConfig
@@ -284,7 +350,7 @@
     // Tabs
     // ==============================
     function setTab(tab){
-      const tabs = ["orders","products","dashboard"];
+      const tabs = ["orders","products","categories","dashboard"];
       tabs.forEach(t => {
         document.getElementById(`tab-${t}`).classList.toggle("active", t === tab);
         document.getElementById(`view-${t}`).classList.toggle("hidden", t !== tab);
@@ -292,6 +358,7 @@
     }
     $("tab-orders").addEventListener("click", () => setTab("orders"));
     $("tab-products").addEventListener("click", () => setTab("products"));
+    $("tab-categories").addEventListener("click", () => setTab("categories"));
     $("tab-dashboard").addEventListener("click", () => setTab("dashboard"));
 
     // ==============================
@@ -629,7 +696,7 @@ Responda aqui para confirmar.`;
       unsubProducts = onSnapshot(qy, (snap) => {
         liveProducts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         renderProducts();
-      }, (err) => {
+      }, () => {
         $("products-error").textContent = "Erro ao carregar produtos. Verifique regras /products e se você está logado.";
         $("products-error").classList.remove("hidden");
       });
@@ -637,6 +704,66 @@ Responda aqui para confirmar.`;
 
     $("btn-add-product").addEventListener("click", addProduct);
     $("prod-search").addEventListener("input", renderProducts);
+
+    // ==============================
+    // Categories titles (NOVO)
+    // ==============================
+    const SETTINGS_REF = doc(db, "settings", "menu");
+
+    function setCatMsg(text, ok=true){
+      const el = $("cat-msg");
+      el.textContent = text;
+      el.classList.remove("hidden");
+      el.style.color = ok ? "#22c55e" : "#ef4444";
+    }
+
+    async function loadCategoryTitles(){
+      try{
+        const snap = await getDoc(SETTINGS_REF);
+        const data = snap.exists() ? snap.data() : {};
+        const titles = data.categoryTitles || {};
+
+        $("cat-title-Lanches").value = titles.Lanches || "Lanches";
+        $("cat-title-Pizzas").value = titles.Pizzas || "Pizzas";
+        $("cat-title-Bebidas").value = titles.Bebidas || "Bebidas";
+        $("cat-title-Sobremesas").value = titles.Sobremesas || "Sobremesas";
+
+        $("cat-msg").classList.add("hidden");
+      } catch (e){
+        setCatMsg("Erro ao carregar títulos. Verifique regras de /settings.", false);
+      }
+    }
+
+    async function saveCategoryTitles(){
+      try{
+        const payload = {
+          categoryTitles: {
+            Lanches: ($("cat-title-Lanches").value || "Lanches").trim(),
+            Pizzas: ($("cat-title-Pizzas").value || "Pizzas").trim(),
+            Bebidas: ($("cat-title-Bebidas").value || "Bebidas").trim(),
+            Sobremesas: ($("cat-title-Sobremesas").value || "Sobremesas").trim()
+          },
+          updatedAt: serverTimestamp()
+        };
+
+        // merge para não apagar outros campos
+        await setDoc(SETTINGS_REF, payload, { merge: true });
+        setCatMsg("✅ Títulos salvos! Agora o index do cliente precisa ler settings/menu.", true);
+      } catch (e){
+        setCatMsg("Erro ao salvar títulos. Verifique regras de /settings.", false);
+      }
+    }
+
+    function resetCategoryTitles(){
+      $("cat-title-Lanches").value = "Lanches";
+      $("cat-title-Pizzas").value = "Pizzas";
+      $("cat-title-Bebidas").value = "Bebidas";
+      $("cat-title-Sobremesas").value = "Sobremesas";
+      $("cat-msg").classList.add("hidden");
+    }
+
+    $("btn-cat-save").addEventListener("click", saveCategoryTitles);
+    $("btn-cat-reset").addEventListener("click", resetCategoryTitles);
 
     // ==============================
     // Dashboard metrics
@@ -672,13 +799,14 @@ Responda aqui para confirmar.`;
     // ==============================
     // Auth state
     // ==============================
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
       if(user){
         $("login-overlay").classList.add("hidden");
         $("app").classList.remove("hidden");
 
         startOrdersRealtime();
         startProductsRealtime();
+        await loadCategoryTitles();
         setTab("orders");
       } else {
         $("app").classList.add("hidden");
